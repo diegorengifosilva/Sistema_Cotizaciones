@@ -415,14 +415,14 @@ export default function AprobacionCotizacion() {
 
               // 3. REFERENCIA
               <span
-                className="text-xs text-slate-800 font-semibold text-left truncate max-w-[150px] block"
+                className="text-xs text-slate-800 font-semibold text-left truncate max-w-[400px] block"
                 title={c.referencia}
               >
                 {c.referencia || "—"}
               </span>,
 
               // 4. CLIENTE / REPRESENTANTE
-              <div className="flex flex-col py-3 min-w-[240px] text-left">
+              <div className="flex flex-col py-3 max-w-[300px] text-left">
                 <span className="text-xs font-semibold text-slate-800 leading-none uppercase tracking-tight mb-1">
                   {clientesMap[c.cliente_codigo] ?? "No Identificado"}
                 </span>
