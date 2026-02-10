@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* ---------------- CONFIGURACIÓN PDF E IDENTIDAD ACTUAL ---------------- */
+        @page {
+            margin: 0; /* Controlamos los márgenes internamente para los fondos */
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Contenedor para simular las páginas del sistema original */
+        .page {
+            position: relative;
+            width: 210mm; /* A4 */
+            height: 297mm;
+            page-break-after: always;
+            overflow: hidden;
+        }
+
+        /* Fondos corporativos */
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background-image: url(bg/cia_header.png);
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .footer-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            background-image: url(bg/cia_footer.png);
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .content {
+            padding: 160px 15mm 100px 15mm; /* Margen para no chocar con header/footer */
+        }
+
+        /* ---------------- ESTILOS DE TABLAS ORIGINALES ---------------- */
+        .tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .tabla th, .tabla td {
+            border: 1px solid #D5D9DC;
+            padding: 4px;
+        }
+
+        .tabla th {
+            background-color: #F3F4F6;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .subtit {
+            font-size: 11px;
+            font-weight: bold;
+            margin: 12px 0 6px;
+            color: #000;
+        }
+
+        .right { text-align: right; }
+        .center { text-align: center; }
+
+        /* Estilo para el total con la línea roja del original */
+        .total-grupo td {
+            font-weight: bold;
+            border-top: 2px solid red !important;
+        }
+
+        /* ---------------- PORTADA (Página 1) - MEJORADA ---------------- */
+        .page-portada {
+            background-color: #ffffff;
+            background-image: url(bg/portada_background.png); 
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            position: relative; /* Importante para que los hijos se posicionen respecto a la hoja */
+        }
+
+        /* Contenedor del Logo de tu Empresa (Superior Izquierda) */
+        .mi-empresa-logo {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 400px; /* Ajusta según el tamaño de tu logo */
+            height: 150px;
+        }
+
+        /* Título de Referencia (Posición Exacta) */
+        .portada-titulo {
+            position: absolute;
+            top: 250px; /* Bajamos el título 250px desde el tope */
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        .portada-titulo h1 {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 0 50px;
+            margin: 0;
+        }
+
+        /* Caja del Logo del Cliente (Centro de la hoja) */
+        .cliente-logo-box {
+            position: absolute;
+            top: 380px; /* El logo empieza a los 380px del tope */
+            left: 50%;
+            transform: translateX(-50%); /* Centrado horizontal perfecto */
+            width: 550px;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cliente-logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Título Inferior (Fijo abajo) */
+        .portada-footer-text {
+            position: absolute;
+            bottom: 120px; /* A 120px del borde inferior */
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        .portada-footer-text h1 {
+            font-size: 32px;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        /* --- ESTILOS PÁGINA 2 --- */
+        .banner-datos {
+            background-image: url(bg/banner04.png);
+            background-repeat: no-repeat;
+            background-size: 100% auto;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .banner-datos td {
+            font-size: 14px; /* Tamaño similar al original de 15px */
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .right {
+            text-align: right;
+            font-weight: normal;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        /* ---------------- PÁGINA 3 - ÍNDICE ---------------- */
+        .indice-contenedor {
+            padding: 40px 60px;
+        }
+        .indice-item {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #000;
+            text-transform: uppercase; /* Para que coincida con el estilo de la empresa */
+            font-weight: bold;
+        }
+        .indice-subitem {
+            margin-left: 25px;
+            font-size: 13px;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="page page-portada">
+    <div class="mi-empresa-logo">
+        <img src="assets/logo.png" alt="Logo Empresa">
+    </div>
+
+    <div class="portada-titulo">
+        <h1 style="font-size: 24px; font-weight: bold;">{{ cabecera.referencia|upper }}</h1>
+    </div>
+
+    <div class="cliente-logo-box">
+        <img src="clientes/{{ cabecera.cliente_codigo }}.png" style="max-width: 100%; max-height: 100%;">
+    </div>
+
+    <div class="portada-footer-text">
+        <h1 style="font-size: 32px; color: #333;">PROPUESTA - ECONÓMICA</h1>
+    </div>
+</div>
+
+<div class="page">
+    <div class="banner-datos">
+        <table style="width: 100%; border: none; border-collapse: collapse;">
+            <tr>
+                <td style="width:50%; height: 145px;">&nbsp;</td>
+                <td style="width:2%;">&nbsp;</td>
+                <td style="width:48%;">&nbsp;</td>
+            </tr>
+            
+            <tr>
+                <td class="right">Cotización Nro:</td>
+                <td>&nbsp;</td>
+                <td class="bold">{{ cabecera.numero|default:"---" }}</td>
+            </tr>
+            <tr><td colspan="3" style="height:8px;"></td></tr>
+            <tr>
+                <td class="right">Fecha:</td>
+                <td>&nbsp;</td>
+                <td class="bold">{{ cabecera.fecha }}</td>
+            </tr>
+            <tr><td colspan="3" style="height:8px;"></td></tr>
+            <tr>
+                <td class="right" valign="top">Referencia:</td>
+                <td>&nbsp;</td>
+                <td class="bold">{{ cabecera.referencia|upper }}</td>
+            </tr>
+            <tr><td colspan="3" style="height:15px;"></td></tr>
+
+            <tr>
+                <td class="right">Para:</td>
+                <td>&nbsp;</td>
+                <td class="bold">{{ cabecera.cliente|default:"CLIENTE" }}</td>
+            </tr>
+            <tr><td colspan="3" style="height:10px;"></td></tr>
+            <tr>
+                <td class="right" valign="top">Atención:</td>
+                <td>&nbsp;</td>
+                <td>
+                    <span class="bold">{{ cabecera.atencion.nombre }}</span><br>
+                    {{ cabecera.atencion.cargo }}<br>
+                    Teléfono: {{ cabecera.atencion.telefono }}<br>
+                    {{ cabecera.atencion.correo }}
+                </td>
+            </tr>
+            <tr><td colspan="3" style="height:20px;"></td></tr>
+            <tr>
+                <td class="right" valign="top">De:</td>
+                <td>&nbsp;</td>
+                <td>
+                    <span class="bold"> V&C Corporation SAC </span><br>
+                    Asociación Villa Rica Mz. S Lote 1 – Chaclacayo -
+                    Lima - Perú<br>
+                    RUC: 20508558997<br>
+                </td>
+            </tr>
+            <tr><td colspan="3" style="height:20px;"></td></tr>
+            <tr>
+                <td class="right" valign="top">Contacto Comercial:</td>
+                <td>&nbsp;</td>
+                <td>
+                    <span class="bold">{{ cabecera.comercial.nombre }}</span><br>
+                    Teléfono: {{ cabecera.comercial.telefono }}<br>
+                    {{ cabecera.comercial.correo }}
+                </td>
+            </tr>
+            <tr><td colspan="3" style="height:15px;"></td></tr>
+            <tr>
+                <td class="right" valign="top">Contacto Técnico:</td>
+                <td>&nbsp;</td>
+                <td>
+                    <span class="bold">{{ cabecera.tecnico.nombre }}</span><br>
+                    Teléfono: {{ cabecera.tecnico.telefono }}<br>
+                    {{ cabecera.tecnico.correo }}
+                </td>
+            </tr>
+            <tr><td colspan="3" style="height:25px;"></td></tr>
+
+            <tr>
+                <td class="right" valign="top">Tiempo de Entrega:</td>
+                <td>&nbsp;</td>
+                <td>
+                    Suministros: {{ cabecera.tiempo_entrega.suministros.cantidad }} {{ cabecera.tiempo_entrega.suministros.tipo }}<br> 
+                    Servicios: {{ cabecera.tiempo_entrega.servicios.cantidad }} {{ cabecera.tiempo_entrega.servicios.tipo }}
+                </td>
+            </tr>
+            </tr>
+            <tr><td colspan="3" style="height:8px;"></td></tr>
+            <tr>
+                <td class="right">Forma de Pago:</td>
+                <td>&nbsp;</td>
+                <td>{{ cabecera.forma_pago }}</td>
+            </tr>
+            <tr><td colspan="3" style="height:8px;"></td></tr>
+            <tr>
+                <td class="right">Lugar de Entrega:</td>
+                <td>&nbsp;</td>
+                <td>{{ cabecera.lugar_entrega }}</td>
+            </tr>
+            <tr><td colspan="3" style="height:8px;"></td></tr>
+            <tr>
+                <td class="right">Moneda:</td>
+                <td>&nbsp;</td>
+                <td>{{ cabecera.moneda }}</td>
+            </tr>
+            <tr>
+                <td class="right">IGV:</td>
+                <td>&nbsp;</td>
+                <td>{% if cabecera.incluye_igv %} Incluye IGV {% else %} No incluye IGV {% endif %}</td>
+            </tr>
+            <tr><td colspan="3" style="height:8px;"></td></tr>
+            <tr>
+                <td class="right">Validez de la oferta:</td>
+                <td>&nbsp;</td>
+                <td>{{ cabecera.validez.cantidad }} {{ cabecera.validez.tipo }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="page">
+    <div class="header-bg"></div>
+    <div class="footer-bg"></div>
+    
+    <div class="content">
+        <h2 style="text-align: center; margin-bottom: 10px; font-size: 20px;">PROPUESTA ECONÓMICA</h2>
+        <h2 style="text-align: center; text-decoration: underline; margin-bottom: 50px; font-size: 20px;">CONTENIDO</h2>
+
+        <div class="indice-contenedor">
+            <div class="indice-item">1. PRESUPUESTO GENERAL</div>
+
+            {% if suministros %}
+                {% for grupo in suministros %}
+                <div class="indice-item">
+                    {{ forloop.counter|add:1 }}. DETALLE: {{ grupo.titulo }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if servicios %}
+                {% with start_index=suministros|length|add:1 %}
+                    {% for grupo in servicios %}
+                    <div class="indice-item">
+                        {{ forloop.counter|add:start_index }}. DETALLE: {{ grupo.titulo }}
+                    </div>
+                    {% endfor %}
+                {% endwith %}
+            {% endif %}
+
+            <div class="indice-item">
+                {% with total_grupos=suministros|length|add:servicios|length %}
+                    {{ total_grupos|add:2 }}. CONDICIONES GENERALES
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page">
+    <div class="header-bg"></div>
+    <div class="footer-bg"></div>
+    
+    <div class="content">
+        <p class="subtit">1.- PRESUPUESTO GENERAL</p>
+        <table class="tabla" style="margin-bottom: 30px;">
+            <thead>
+                <tr>
+                    <th style="width:5%">Ítem</th>
+                    <th style="width:45%">Descripción</th>
+                    <th style="width:10%">Cant.</th>
+                    <th style="width:20%">Precio Unitario ({{ totales.moneda }})</th>
+                    <th style="width:20%">Precio Total ({{ totales.moneda }})</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for grupo in suministros %}
+                <tr>
+                    <td class="center">{{ forloop.counter }}</td>
+                    <td class="bold">{{ grupo.titulo }}</td>
+                    <td class="center">{{ grupo.cantidad|floatformat:2 }}</td>
+                    <td class="right">{{ grupo.total|floatformat:2 }}</td>
+                    <td class="right bold">{{ grupo.total_grupo|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+
+                {% with offset=suministros|length %}
+                    {% for grupo in servicios %}
+                    <tr>
+                        <td class="center">{{ forloop.counter|add:offset }}</td>
+                        <td class="bold">{{ grupo.titulo }}</td>
+                        <td class="center">{{ grupo.cantidad|floatformat:2 }}</td>
+                        <td class="right">{{ grupo.total|floatformat:2 }}</td>
+                        <td class="right bold">{{ grupo.total_servicio|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endwith %}
+            </tbody>
+            <tfoot>
+                <tr class="total-grupo">
+                    <td colspan="4" class="right">COSTO TOTAL :</td>
+                    <td class="right bold">{{ totales.total_cotizacion|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {% if suministros %}
+            {% for grupo in suministros %}
+            <div style="margin-bottom: 25px; page-break-inside: avoid;">    
+                <p class="subtit">{{ forloop.counter|add:1 }}.- DETALLE: {{ grupo.titulo }}</p>
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th style="width:5%">Ítem</th>
+                            <th style="width:45%">Descripción</th>
+                            <th style="width:10%">U.M.</th>
+                            <th style="width:10%">Cant.</th>
+                            <th style="width:15%">P. Unit. ({{ totales.moneda }})</th>
+                            <th style="width:15%">P. Total ({{ totales.moneda }})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in grupo.items %}
+                        <tr>
+                            <td class="center">{{ forloop.counter }}</td>
+                            <td>{{ item.descripcion|linebreaksbr }}</td>
+                            <td class="center">{{ item.unidad }}</td>
+                            <td class="center">{{ item.cantidad|floatformat:2 }}</td>
+                            <td class="right">{{ item.precio_unitario|floatformat:2 }}</td>
+                            <td class="right">{{ item.total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-grupo">
+                            <td colspan="4" class="right">COSTO TOTAL :</td>
+                            <td class="right">{{ grupo.subtotal_pu_items|floatformat:2 }}</td>
+                            <td class="right">{{ grupo.subtotal_tot_items|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if servicios %}
+            {% with start_idx=suministros|length|add:1 %}
+                {% for grupo in servicios %}
+                <div style="margin-bottom: 25px; page-break-inside: avoid;">
+                    <p class="subtit">{{ forloop.counter|add:start_idx }}.- DETALLE: {{ grupo.titulo }}</p>
+                    
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">Ítem</th>
+                                <th style="width:55%">Descripción</th>
+                                <th style="width:10%">Cant.</th>
+                                <th style="width:15%">P. Unit. ({{ totales.moneda }})</th>
+                                <th style="width:15%">P. Total ({{ totales.moneda }})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="center">1</td>
+                                <td style="font-size: 11px;">{{ grupo.detalle|linebreaksbr }}</td>
+                                <td class="center">{{ grupo.cantidad|floatformat:2 }}</td>
+                                <td class="right">{{ grupo.total|floatformat:2 }}</td>
+                                <td class="right">{{ grupo.total_servicio|floatformat:2 }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-grupo">
+                                <td colspan="4" class="right">COSTO TOTAL SERVICIOS:</td>
+                                <td class="right">{{ totales.servicios|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% endfor %}
+            {% endwith %}
+        {% endif %}
+
+        {% if condiciones_generales.condiciones %}
+            <div style="page-break-inside: avoid; margin-top: 20px;">
+                {% with total_secciones=suministros|length|add:servicios|length|add:1 %}
+                <p class="subtit">{{ total_secciones|add:1 }}.- CONDICIONES GENERALES</p>
+                {% endwith %}
+                
+                <div style="text-align: justify; font-size: 11px; line-height: 1.2; padding: 0 10px;">
+                    {{ condiciones_generales.condiciones|safe }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

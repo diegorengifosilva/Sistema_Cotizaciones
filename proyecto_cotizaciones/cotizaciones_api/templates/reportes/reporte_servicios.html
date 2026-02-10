@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reporte Servicios</title>
+
+<style>
+body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #333; margin: 20px; }
+h2 { text-align: center; margin-bottom: 25px; letter-spacing: 1px; }
+
+.grupo-titulo { font-weight: bold; font-size: 13px; margin-top: 28px; margin-bottom: 6px; text-transform: uppercase; color: #111827; }
+
+table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+th, td { border: 1px solid #cbd5e1; padding: 6px; }
+th { background-color: #008080; color: white; text-align: center; font-weight: bold; }
+.sub-header th { background-color: #008080; color: white; font-size: 11px; }
+td { vertical-align: middle; background-color: #ffffff; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.subgrupo-titulo { background-color: #e0d7f5; font-weight: bold; text-align: left; padding-left: 5px; }
+.total-row { font-weight: bold; background-color: #f0f0f0; }
+</style>
+</head>
+
+<body>
+<h2>REPORTE SERVICIOS</h2>
+
+<div id="tabla_servicios">
+{% for grupo in grupos.values %}
+    <div class="grupo-titulo">{{ grupo.titulo }}</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2">Ítem</th>
+                <th rowspan="2">Código</th>
+                <th rowspan="2">Descripción</th>
+                <th rowspan="2">Área</th>
+                <th rowspan="2">Cant.</th>
+                <th rowspan="2">Días</th>
+                <th colspan="2">Cliente Final</th>
+                <th colspan="2">Precio Costo</th>
+                <th rowspan="2">Utilidad</th>
+            </tr>
+            <tr class="sub-header">
+                <th>Prec.Unit.</th>
+                <th>Total</th>
+                <th>Prec.Unit.</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for sub in grupo.subgrupos.values %}
+            <tr>
+                <td class="subgrupo-titulo" colspan="11">{{ sub.tipo }}</td>
+            </tr>
+
+            {% for it in sub.items %}
+                <tr>
+                    <td class="text-center">{{ it.item }}</td>
+                    <td>{{ it.cod }}</td>
+                    <td>{{ it.des }}</td>
+                    <td class="text-center">{{ it.pro }}</td>
+                    <td class="text-center">{{ it.can|floatformat:2 }}</td>
+                    <td class="text-center">{{ it.dias|floatformat:0 }}</td>
+                    <td class="text-right">{{ it.val|floatformat:2 }}</td>
+                    <td class="text-right">{{ it.tot|floatformat:2 }}</td>
+                    <td class="text-right">{{ it.puc|floatformat:2 }}</td>
+                    <td class="text-right">{{ it.toc|floatformat:2 }}</td>
+                    <td class="text-right">{{ it.utilidad|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+
+            <tr class="total-row">
+                <td colspan="7" class="text-right">Total {{ sub.tipo }}:</td>
+                <td class="text-right">{{ sub.sub_total_tot|floatformat:2 }}</td>
+                <td class="text-right"> </td>
+                <td class="text-right">{{ sub.sub_total_toc|floatformat:2 }}</td>
+                <td class="text-right">{{ sub.sub_total_utilidad|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+
+        <tr class="total-row">
+            <td colspan="7" class="text-right">Total Servicio:</td>
+            <td class="text-right">{{ grupo.total_tot|floatformat:2 }}</td>
+            <td class="text-right"> </td>
+            <td class="text-right">{{ grupo.total_toc|floatformat:2 }}</td>
+            <td class="text-right">{{ grupo.total_utilidad|floatformat:2 }}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endfor %}
+</div>
+</body>
+</html>

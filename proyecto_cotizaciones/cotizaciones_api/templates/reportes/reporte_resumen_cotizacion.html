@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>{{ titulo }} - {{ proyecto }}</title>
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        color: #333;
+        margin: 10px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #008080;
+        letter-spacing: 1px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #cbd5e1;
+        padding: 6px;
+    }
+
+    th {
+        background-color: #008080;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    td.text-right { text-align: right; }
+    td.text-center { text-align: center; }
+
+    .total-final {
+        font-weight: bold;
+        background-color: #f0f9f9;
+    }
+</style>
+</head>
+<body>
+
+<h2>{{ titulo }}</h2>
+<h3 style="text-align:center;">PROYECTO: {{ proyecto }}</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>CONCEPTO</th>
+            <th>IMPORTE</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fila in resumen %}
+        <tr>
+            <td>{{ fila.concepto }}</td>
+            <td class="text-right">{{ fila.importe|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="total-final">
+            <td style="text-align:right;">TOTAL FINAL</td>
+            <td class="text-right">{{ total_final|floatformat:2 }}</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
