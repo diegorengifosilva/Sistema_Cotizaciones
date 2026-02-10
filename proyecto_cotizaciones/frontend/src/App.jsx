@@ -26,6 +26,7 @@ import CotizacionesHome from "./dashboard/Home/CotizacionesHome";
 // MODAL NUEVA COTIZACIÓN
 import CotizacionNuevaModal from "./dashboard/aprobacion_cotizacion/CotizacionNuevaModal";
 
+
 export default function App() {
   return (
     <Router>
