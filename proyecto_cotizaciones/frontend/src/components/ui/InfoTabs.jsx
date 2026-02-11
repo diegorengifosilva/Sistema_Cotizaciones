@@ -88,7 +88,6 @@ const handleDragEndGrupo = (event) => {
   });
 };
 
-
 export default function InfoTabs({
   dashboardName,
   modo,
@@ -811,33 +810,45 @@ export default function InfoTabs({
     }));
   }, [gruposSuministros, grupos]);
 
-  function GrupoSortable({ grupo, children }) {
+  const setBaseGrupos = (updater) => {
+    if (Object.keys(gruposSuministros || {}).length > 0) {
+      setGruposSuministros(updater);
+    } else {
+      setGrupos(updater);
+    }
+  };
+
+  function SortableGrupoRow({ id, children }) {
     const {
+      setNodeRef,
       attributes,
       listeners,
-      setNodeRef,
       transform,
       transition,
-      isDragging,
     } = useSortable({
-      id: grupo.cog,
+      id,
+      data: {
+        type: "grupo",
+        cog: id,
+      },
     });
 
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
-      opacity: isDragging ? 0.6 : 1,
     };
 
     return (
-      <tbody
+      <tr
         ref={setNodeRef}
         style={style}
-        className={isDragging ? "bg-slate-100/40" : ""}
+        {...attributes}
+        className="bg-slate-100 border-b border-slate-300"
       >
-        {/* handle solo en cabecera luego */}
-        {children(attributes, listeners)}
-      </tbody>
+        {typeof children === "function"
+          ? children({ listeners })
+          : children}
+      </tr>
     );
   }
 
@@ -862,7 +873,13 @@ export default function InfoTabs({
       transform,
       transition,
       isDragging,
-    } = useSortable({ id: item.id });
+      } = useSortable({
+        id: item.id,
+        data: {
+          type: "item",
+          cog,
+        },
+      });
 
     const style = {
       transform: CSS.Transform.toString(transform),
@@ -899,7 +916,7 @@ export default function InfoTabs({
               item,
               anchor: rect,
             });
-          }, 1300);
+          }, 1500);
         }}
         onMouseLeave={() => {
           clearTimeout(hoverTimerRef.current);
@@ -964,35 +981,102 @@ export default function InfoTabs({
     );
   }
 
-  const handleDragEndItem = (event, cog) => {
-    const { active, over } = event;
+  const handleDragEnd = ({ active, over }) => {
+    if (!over) return;
 
-    if (!over || active.id === over.id) return;
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
 
-    setGrupos((prev) => {
-      const nuevos = { ...prev };
+    setBaseGrupos((prev) => {
+      const entries = Object.entries(prev).map(([cog, grupo]) => [
+        cog,
+        {
+          ...grupo,
+          items: [...(grupo.items || [])],
+        },
+      ]);
 
-      const grupo = nuevos[cog];
-      if (!grupo) return prev;
+      // =====================
+      // 🔵 MOVER GRUPOS
+      // =====================
+      if (activeType === "grupo" && overType === "grupo") {
+        const oldIndex = entries.findIndex(([c]) => c === active.id);
+        const newIndex = entries.findIndex(([c]) => c === over.id);
 
-      const oldIndex = grupo.items.findIndex(
-        (i) => i.id === active.id
-      );
-      const newIndex = grupo.items.findIndex(
-        (i) => i.id === over.id
-      );
+        if (oldIndex === -1 || newIndex === -1) return prev;
 
-      if (oldIndex === -1 || newIndex === -1) return prev;
+        const reordered = arrayMove(entries, oldIndex, newIndex);
 
-      grupo.items = arrayMove(
-        grupo.items,
-        oldIndex,
-        newIndex
-      );
+        const normalizados = renumerarGrupos(
+          reordered.map(([_, grupo]) => grupo)
+        );
 
-      return { ...nuevos };
+        return Object.fromEntries(
+          normalizados.map((g) => [g.cog, g])
+        );
+      }
+
+      // =====================
+      // 🟢 MOVER ITEMS
+      // =====================
+      if (activeType === "item") {
+        const fromCog = active.data.current.cog;
+        const toCog =
+          over.data.current?.cog ??
+          over.id;
+
+        const fromGrupo = entries.find(([c]) => c === fromCog);
+        const toGrupo = entries.find(([c]) => c === toCog);
+
+        if (!fromGrupo || !toGrupo) return prev;
+
+        const fromItems = fromGrupo[1].items;
+        const toItems = toGrupo[1].items;
+
+        const itemIndex = fromItems.findIndex(
+          (i) => i.id === active.id
+        );
+
+        if (itemIndex === -1) return prev;
+
+        const [moved] = fromItems.splice(itemIndex, 1);
+
+        if (active.id !== over.id && overType === "item") {
+          const overIndex = toItems.findIndex(
+            (i) => i.id === over.id
+          );
+
+          toItems.splice(overIndex, 0, moved);
+        } else {
+          toItems.push(moved);
+        }
+
+        return Object.fromEntries(entries);
+      }
+
+      return prev;
     });
   };
+
+  // Reordenar y renumerar grupos e items
+  function renumerarGrupos(gruposOrdenados) {
+    return gruposOrdenados.map((grupo, index) => {
+      const contador = String(index + 1).padStart(2, "0");
+
+      const tipo = grupo.cog.slice(2); // 01 o 02
+
+      const nuevoCog = `${contador}${tipo}`;
+
+      return {
+        ...grupo,
+        cog: nuevoCog,
+        items: grupo.items.map((item) => ({
+          ...item,
+          cog: nuevoCog,
+        })),
+      };
+    });
+  }
 
   // Render
   const gruposRender =
@@ -1371,6 +1455,16 @@ export default function InfoTabs({
       });
     }
   }, [focusField, openItemModal]);
+
+  // Grupo Colapsable
+  const [collapsedGrupos, setCollapsedGrupos] = useState({});
+
+  const toggleGrupo = (cog) => {
+    setCollapsedGrupos((prev) => ({
+      ...prev,
+      [cog]: !prev[cog],
+    }));
+  };
 
   // =======================
   // TABLA SERVICIOS
@@ -2142,7 +2236,7 @@ export default function InfoTabs({
                     <DndContext
                       sensors={sensors}
                       collisionDetection={closestCenter}
-                      onDragEnd={handleDragEndGrupo}
+                      onDragEnd={handleDragEnd}
                     >
                       <SortableContext
                         items={gruposOrdenados.map((g) => g.cog)}
@@ -2158,177 +2252,134 @@ export default function InfoTabs({
                           return (
                             <React.Fragment key={cog}>
                               {/* CABECERA DE GRUPO - Visible y con acciones fijas */}
-                              <tr className="bg-slate-100 border-b border-slate-300">
-                                <td className="p-1.5 text-center border-r border-slate-200">
-                                  <button 
-                                    onClick={() => { setGrupoActivo(cog); setItemActivo(null); setOpenItemModal(true); }}
-                                    className="p-1 rounded bg-white border border-slate-400 text-slate-900 hover:bg-slate-400 hover:text-white hover:border-slate-400 transition shadow-sm"
-                                  >
-                                    <Plus className="h-2.5 w-2.5" />
-                                  </button>
-                                </td>
-                                <td colSpan={6} className="px-3 py-1.5 border-r border-slate-200">
-                                  <div className="flex items-center gap-3">
-                                    <button
-                                      type="button"
-                                      title="Agregar EQUIPOS"
+                              <SortableGrupoRow id={cog} grupo={grupo}>
+                                <tr className="bg-slate-100 border-b border-slate-300">
+                                  <td className="p-1.5 text-center border-r border-slate-200">
+                                    <button 
+                                      onClick={() => { setGrupoActivo(cog); setItemActivo(null); setOpenItemModal(true); }}
                                       className="p-1 rounded bg-white border border-slate-400 text-slate-900 hover:bg-slate-400 hover:text-white hover:border-slate-400 transition shadow-sm"
-                                      onClick={() => {
-                                        setGrupoActivo(cog);
-                                        setItemActivo(null);
-                                        setOpenRegistroItem(true);
-                                      }}
                                     >
                                       <Plus className="h-2.5 w-2.5" />
                                     </button>
-                                    <span className="bg-slate-700 text-white px-2 py-1 rounded text-[10px] font-black uppercase tracking-tighter leading-none">
-                                      {tipo}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => { setGrupoActivo({ ...grupo, cog: grupo.cog ?? grupo.id }); setOpenGrupoModal(true); }}
-                                      className="font-black text-slate-800 hover:text-teal-700 transition uppercase text-xs decoration-slate-400 underline-offset-2 hover:underline"
-                                    >
-                                      {grupo.titulo}
-                                    </button>
-                                  </div>
-                                </td>
-                                <td className="px-2 border-r border-slate-200">
-                                  <div className="flex justify-center gap-2">
+                                  </td>
+                                  <td colSpan={6} className="px-3 py-1.5 border-r border-slate-200">
+                                    <div className="flex items-center gap-3">
+                                      <button
+                                        type="button"
+                                        title="Agregar EQUIPOS"
+                                        className="p-1 rounded bg-white border border-slate-400 text-slate-900 hover:bg-slate-400 hover:text-white hover:border-slate-400 transition shadow-sm"
+                                        onClick={() => {
+                                          setGrupoActivo(cog);
+                                          setItemActivo(null);
+                                          setOpenRegistroItem(true);
+                                        }}
+                                      >
+                                        <Plus className="h-2.5 w-2.5" />
+                                      </button>
+                                      <span
+                                        onClick={() => toggleGrupo(cog)}
+                                        className={`
+                                          inline-flex items-center gap-1
+                                          bg-slate-700 text-white
+                                          px-2 py-1 rounded
+                                          text-[10px] font-black uppercase tracking-tighter
+                                          leading-none cursor-pointer
+                                          hover:bg-slate-800 transition
+                                          select-none
+                                        `}
+                                      >
+                                        {tipo}
+                                      </span>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => { setGrupoActivo({ ...grupo, cog: grupo.cog ?? grupo.id }); setOpenGrupoModal(true); }}
+                                        className="font-black text-slate-800 hover:text-teal-700 transition uppercase text-xs decoration-slate-400 underline-offset-2 hover:underline"
+                                      >
+                                        {grupo.titulo}
+                                      </button>
+                                    </div>
+                                  </td>
+                                  <td className="px-2 border-r border-slate-200">
+                                    <div className="flex justify-center gap-2">
+                                      <button 
+                                        onClick={() => onDuplicarGrupo?.(cog)} 
+                                        title="Duplicar"
+                                        className="p-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-500 hover:text-white transition-colors border border-blue-200"
+                                      >
+                                        <CopyPlus className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button 
+                                        onClick={() => { setGrupoActivo(cog); setOpenImportarXLS1(true); }} 
+                                        title="Importar XLS"
+                                        className="p-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-500 hover:text-white transition-colors border border-emerald-200"
+                                      >
+                                        <FileUp className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        title="Importar Datos de XLS y actualizar"
+                                        onClick={() => { setGrupoActivo(cog); setOpenImportarXLS2(true); }}
+                                        className="p-1 rounded bg-violet-50 text-violet-700 hover:bg-violet-500 hover:text-white transition-colors border border-violet-200"
+                                      >
+                                        <FilePlus className="h-3.5 w-3.5" />
+                                      </button>                                
+                                    </div>
+                                  </td>
+                                  <td className="p-1 text-center">
                                     <button 
-                                      onClick={() => onDuplicarGrupo?.(cog)} 
-                                      title="Duplicar"
-                                      className="p-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-500 hover:text-white transition-colors border border-blue-200"
+                                      onClick={() => handleEliminarGrupo(cog)} 
+                                      className="p-1 rounded bg-red-50 text-red-700 hover:bg-red-500 hover:text-white transition-colors border border-red-200"
                                     >
-                                      <CopyPlus className="h-3.5 w-3.5" />
+                                      <Trash2 className="h-3.5 w-3.5" />
                                     </button>
-                                    <button 
-                                      onClick={() => { setGrupoActivo(cog); setOpenImportarXLS1(true); }} 
-                                      title="Importar XLS"
-                                      className="p-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-500 hover:text-white transition-colors border border-emerald-200"
-                                    >
-                                      <FileUp className="h-3.5 w-3.5" />
-                                    </button>
-                                    <button
-                                      type="button"
-                                      title="Importar Datos de XLS y actualizar"
-                                      onClick={() => { setGrupoActivo(cog); setOpenImportarXLS2(true); }}
-                                      className="p-1 rounded bg-violet-50 text-violet-700 hover:bg-violet-500 hover:text-white transition-colors border border-violet-200"
-                                    >
-                                      <FilePlus className="h-3.5 w-3.5" />
-                                    </button>                                
-                                  </div>
-                                </td>
-                                <td className="p-1 text-center">
-                                  <button 
-                                    onClick={() => handleEliminarGrupo(cog)} 
-                                    className="p-1 rounded bg-red-50 text-red-700 hover:bg-red-500 hover:text-white transition-colors border border-red-200"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                </td>
-                              </tr>
+                                  </td>
+                                </tr>
+                              </SortableGrupoRow>
+
+                              {/* ITEMS / COLAPSADO */}
+                              {/* FILA RESUMEN CUANDO ESTA COLAPSADO */}
+                              {collapsedGrupos[cog] && (
+                                <tr
+                                  onClick={() => toggleGrupo(cog)}
+                                  className="
+                                    bg-slate-50
+                                    text-[10px]
+                                    border-b border-dashed border-slate-300
+                                    cursor-pointer
+                                    hover:bg-slate-100
+                                    transition
+                                  "
+                                >
+                                  <td colSpan={9} className="px-4 py-2 text-slate-600">
+                                    <div className="flex items-center justify-between">
+                                      <span className="italic font-semibold">
+                                        {grupo.items.length} ítems
+                                      </span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
 
                               {/* ITEMS - Estilo Clean Excel */}
-                              {grupo.items.map((item, index) => {
-
-                                const isSelected = selectedItems.some(
-                                  (s) =>
-                                    s.cog === cog &&
-                                    s.itemId === item.id
-                                );
-
-                                return (
-                                  <tr
+                              {!collapsedGrupos[cog] &&
+                                grupo.items.map((item, index) => (
+                                  <SortableItemRow
                                     key={item.id}
-
-                                    onDoubleClick={() => {
-                                      setGrupoActivo(cog);
-                                      setItemActivo(item);
-                                      setOpenItemModal(true);
-                                    }}
-
-                                    onMouseEnter={(e) => {
-                                      const el = e.currentTarget;
-
-                                      hoverTimerRef.current = setTimeout(() => {
-                                        if (!el) return;
-
-                                        const rect = el.getBoundingClientRect();
-                                        if (!rect) return;
-
-                                        setGhostItem({
-                                          cog,
-                                          item,
-                                          anchor: rect,
-                                        });
-                                      }, 1300);
-                                    }}
-
-                                    onMouseLeave={() => {
-                                      clearTimeout(hoverTimerRef.current);
-                                      setGhostItem(null);
-                                    }}
-
-                                    onClick={(e) =>
-                                      handleRowClick(
-                                        e,
-                                        cog,
-                                        item,
-                                        index,
-                                        grupo
-                                      )
-                                    }
-
-                                    className={`
-                                      border-b border-slate-200 cursor-pointer transition-colors
-                                      hover:bg-sky-100/90
-                                      ${
-                                        isSelected
-                                          ? "bg-teal-100 ring-2 ring-teal-500/40"
-                                          : ""
-                                      }
-                                    `}
-                                  >
-
-
-                                    <td className="py-1.5 text-center font-bold text-slate-500 border-r border-slate-100 bg-slate-50/30">
-                                      <span className="block w-full h-full font-semibold">
-                                        {index + 1}
-                                      </span>
-                                    </td>
-                                    <td className="px-2 py-1 text-slate-900 border-r border-slate-100 font-mono text-[10px] font-semibold tracking-tighter">
-                                      {item.cod}
-                                    </td>
-                                    <td className="px-3 py-1 text-slate-800 border-r border-slate-100 font-semibold leading-snug">
-                                      {item.des}
-                                    </td>
-                                    <td className="px-2 py-1 text-slate-700 border-r border-slate-100 text-center text-[10px] font-medium uppercase">
-                                      {item.pro}
-                                    </td>
-                                    <td className="px-1 py-1 text-slate-700 border-r border-slate-100 text-center font-bold">
-                                      {item.tde}
-                                    </td>
-                                    <td className="px-1 py-1 text-slate-900 border-r border-slate-100 text-center font-black">
-                                      {item.can}
-                                    </td>
-                                    <td className="px-2 py-1 text-slate-700 border-r border-slate-100 text-right pr-3 font-medium">
-                                      {Number(item.val).toFixed(2)}
-                                    </td>
-                                    <td className="px-2 py-1 text-slate-900 border-r border-slate-100 text-right pr-3 font-black bg-slate-50/50">
-                                      {Number(item.tot).toFixed(2)}
-                                    </td>
-                                    <td className="px-1 py-1 text-center">
-                                      <button 
-                                        onClick={() => handleEliminarItem(cog, item.id)} 
-                                        className="p-1 text-slate-300 hover:text-red-600 transition-colors"
-                                      >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                    );
-                                })}
+                                    item={item}
+                                    index={index}
+                                    cog={cog}
+                                    grupo={grupo}
+                                    selectedItems={selectedItems}
+                                    handleRowClick={handleRowClick}
+                                    handleEliminarItem={handleEliminarItem}
+                                    setGrupoActivo={setGrupoActivo}
+                                    setItemActivo={setItemActivo}
+                                    setOpenItemModal={setOpenItemModal}
+                                    hoverTimerRef={hoverTimerRef}
+                                    setGhostItem={setGhostItem}
+                                  />
+                              ))}
 
                               {ghostItem && (
                                 <GhostPreview
@@ -2342,7 +2393,6 @@ export default function InfoTabs({
                                   }}
                                 />
                               )}
-
 
                               {/* SUBTOTAL - Informativo */}
                               <tr className="bg-slate-50 text-[10px] border-b border-slate-200">
@@ -2365,7 +2415,7 @@ export default function InfoTabs({
                                   </span>
                                 </td>
                                 <td className="px-4 py-2 text-right font-black text-slate-900 uppercase tracking-tighter text-xs">
-                                  Total {grupo.titulo}:
+                                  Total {tipo}:
                                 </td>
                                 <td className="px-2 py-2 text-right pr-3 font-black text-teal-700 text-[13px] border-l-4 border-teal-600 bg-teal-50/50">
                                   {((subtotal || 0) * (canGrupo || 1)).toLocaleString('en-US', { minimumFractionDigits: 2 })}

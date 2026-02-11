@@ -26,40 +26,73 @@ import CotizacionesHome from "./dashboard/Home/CotizacionesHome";
 // MODAL NUEVA COTIZACIÓN
 import CotizacionNuevaModal from "./dashboard/aprobacion_cotizacion/CotizacionNuevaModal";
 
+import { KeyboardProvider } from "@/context/KeyboardContext.jsx";
 
 export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <ToastContainer position="top-right" autoClose={3000} />
+        <KeyboardProvider>
 
-        <Routes>
-          {/* Public */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <ToastContainer position="top-right" autoClose={3000} />
 
-          {/* Protected */}
-          <Route
-            path="/dashboard/*"
-            element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-            {/* Home */}
-            <Route path="cotizaciones-home" element={<CotizacionesHome />} />
-            {/* Cotizaciones */}
-            <Route path="cotizaciones" element={<Cotizaciones />} />
-            {/* Revisión de Cotizaciones */}
-            <Route path="revision-cotizacion" element={<RevisionCotizaciones />} />
-            {/* Aprobación de Cotizaciones */}
-            <Route path="aprobacion-cotizacion" element={<AprobacionCotizacion />} />
-            {/* Seguimiento de Cotizaciones */}
-            <Route path="seguimiento-cotizaciones" element={<SeguimientoCotizaciones />} />
-            {/* NUEVA COTIZACIÓN */}
-            <Route path="cotizaciones/nueva" element={<CotizacionNuevaModal />} />
-          </Route>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Redireccionamiento inicial */}
-          <Route path="/" element={<Navigate to="/dashboard/cotizaciones" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard/cotizaciones" replace />} />
-        </Routes>
+            {/* Protected */}
+            <Route
+              path="/dashboard/*"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              {/* Home */}
+              <Route path="cotizaciones-home" element={<CotizacionesHome />} />
+
+              {/* Cotizaciones */}
+              <Route path="cotizaciones" element={<Cotizaciones />} />
+
+              {/* Revisión */}
+              <Route
+                path="revision-cotizacion"
+                element={<RevisionCotizaciones />}
+              />
+
+              {/* Aprobación */}
+              <Route
+                path="aprobacion-cotizacion"
+                element={<AprobacionCotizacion />}
+              />
+
+              {/* Seguimiento */}
+              <Route
+                path="seguimiento-cotizaciones"
+                element={<SeguimientoCotizaciones />}
+              />
+
+              {/* Nueva Cotización */}
+              <Route
+                path="cotizaciones/nueva"
+                element={<CotizacionNuevaModal />}
+              />
+            </Route>
+
+            {/* Redirect */}
+            <Route
+              path="/"
+              element={<Navigate to="/dashboard/cotizaciones" replace />}
+            />
+            <Route
+              path="*"
+              element={<Navigate to="/dashboard/cotizaciones" replace />}
+            />
+          </Routes>
+
+        </KeyboardProvider>
       </AuthProvider>
     </Router>
   );

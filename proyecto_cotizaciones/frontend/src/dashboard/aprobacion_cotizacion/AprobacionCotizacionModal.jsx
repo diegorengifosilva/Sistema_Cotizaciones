@@ -1890,45 +1890,6 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
       );
     }
 
-    console.group("🧮 DEBUG TOTALES COTIZACIÓN");
-
-    // ======================
-    // BASE SUMINISTROS
-    // ======================
-    console.log("📦 Grupos Suministros:", gruposSuministros);
-
-    console.log("📦 Total Suministros Base:", totalSuministrosBase);
-
-    // ======================
-    // BASE SERVICIOS
-    // ======================
-    console.log("🛠️ Grupos Servicios:", gruposServicios);
-
-    console.log("🛠️ Total Servicios Base:", totalServiciosBase);
-
-    // ======================
-    // DESCUENTO
-    // ======================
-    console.log("💸 Descuento:", descuentosForm);
-
-    console.log(
-      "💸 Importe:",
-      importeDescuento,
-      "Afecto:",
-      descuentosForm?.afecto
-    );
-
-    // ======================
-    // TOTALES FINALES
-    // ======================
-    console.log("📊 Total Suministros Final:", totalSuministros);
-
-    console.log("📊 Total Servicios Final:", totalServicios);
-
-    console.log("📊 Total General Final:", totalGeneral);
-
-    console.groupEnd();
-
     setTotalesLocales({
       suministros: totalSuministros,
       servicios: totalServicios,

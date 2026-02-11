@@ -490,12 +490,12 @@ export default function SeguimientoCotizaciones() {
                 </motion.div>
               </div>,
 
-              // 9. ENVÍO
+              // 9. Probabilidad
               <div className="flex items-center justify-start">
                 <div
                   className="w-3.5 h-3.5 rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)] border border-white ring-1 ring-slate-200"
-                  style={{ backgroundColor: getProbColor(c.envio) }}
-                  title={getProbNombre(c.envio)}
+                  style={{ backgroundColor: getProbColor(c.prob) }}
+                  title={getProbNombre(c.prob)}
                 />
               </div>,
             ]}

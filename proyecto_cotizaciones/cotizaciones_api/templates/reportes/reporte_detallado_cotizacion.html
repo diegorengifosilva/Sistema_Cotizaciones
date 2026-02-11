@@ -1,3 +1,5 @@
+{% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -41,10 +43,54 @@
     .total-final {
         font-weight: bold;
     }
+
+
+        /* ---------- HEADER ---------- */
+    .header {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+        /* BOTON EXCEL DERECHA */
+    .excel-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .excel-btn img {
+        width: 38px;
+        display: block;
+        margin: auto;
+    }
+
+    .excel-btn a {
+        text-decoration: none;
+        color: #1D6F42;
+        font-weight: bold;
+    }
+    
 </style>
 </head>
 <body>
+<!-- ENCABEZADO -->
+<div class="header">
+    <div class="mi-empresa-logo">
+        <img src="assets/logo.png"  alt="Logo Empresa">
+    </div>
 
+    
+</div>
+<div class="excel-btn">
+        <a href="{{ url_excel }}">
+            <img src="assets/importar-xls.png" alt="excel">
+            Exportar Excel
+        </a>
+    </div>
+
+    
 <h2>{{ titulo }}</h2>
 <h3 style="text-align:center;">PROYECTO: {{ proyecto }}</h3>
 
@@ -61,14 +107,14 @@
         {% for fila in datos %}
         <tr>
             <td>{{ fila.concepto }}</td>
-            <td class="text-right">{{ fila.costo|floatformat:2 }}</td>
-            <td class="text-right">{{ fila.ganancia|floatformat:2 }}</td>
-            <td class="text-right">{{ fila.total|floatformat:2 }}</td>
+            <td class="text-right">{{ fila.costo|floatformat:2|intcomma }}</td>
+            <td class="text-right">{{ fila.ganancia|floatformat:2|intcomma }}</td>
+            <td class="text-right">{{ fila.total|floatformat:2|intcomma }}</td>
         </tr>
         {% endfor %}
         <tr class="total-final">
             <td colspan="3" style="text-align:right;">TOTAL FINAL</td>
-            <td class="text-right">{{ total_final|floatformat:2 }}</td>
+            <td class="text-right">{{ total_final|floatformat:2 |intcomma}}</td>
         </tr>
     </tbody>
 </table>

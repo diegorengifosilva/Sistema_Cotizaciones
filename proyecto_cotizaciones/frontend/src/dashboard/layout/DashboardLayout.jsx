@@ -13,6 +13,7 @@ import {
 import logo from "@/assets/logo.png";
 import api from "@/services/api"; // tu servicio de API
 import "@/styles/Home.css"; // Tailwind global
+import GlobalSearchModal from "../../components/global/GlobalSearchModal";
 
 const SIDEBAR_ITEMS = [
   {
@@ -98,7 +99,42 @@ export default function DashboardLayout() {
 
   const filteredSidebar = useMemo(() => SIDEBAR_ITEMS, []);
 
-return (
+  // ================================
+  // ⌨️ ATAJOS GLOBALES UI
+  // ================================
+  useEffect(() => {
+    const openSearch = () => {
+      console.log("🔎 DashboardLayout → abrir buscador global");
+      // luego aquí abrirás el modal real
+      // setOpenGlobalSearch(true);
+    };
+
+    window.addEventListener("pm:open-search", openSearch);
+
+    return () => {
+      window.removeEventListener("pm:open-search", openSearch);
+    };
+  }, []);
+
+  // ==============
+  // BUSCADOR
+  // ==============
+  const [openSearch, setOpenSearch] = useState(false);
+
+  useEffect(() => {
+    const open = () => setOpenSearch(true);
+    const close = () => setOpenSearch(false);
+
+    window.addEventListener("pm:open-search", open);
+    window.addEventListener("pm:close-modal", close);
+
+    return () => {
+      window.removeEventListener("pm:open-search", open);
+      window.removeEventListener("pm:close-modal", close);
+    };
+  }, []);
+
+  return (
     <div className="flex min-h-screen bg-[#f8fafc] relative font-sans">
       {/* Overlay Mobile */}
       {mobileOpen && (
@@ -206,7 +242,7 @@ return (
                   <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest group-hover:text-rose-600 transition-colors">
                     Finalizar Sesión
                   </span>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Security V&C v2.4</span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Security V&C</span>
                 </div>
               )}
             </button>
@@ -236,6 +272,13 @@ return (
           <Outlet />
         </main>
       </div>
+
+      
+      <GlobalSearchModal
+        open={openSearch}
+        onClose={() => setOpenSearch(false)}
+      />
     </div>
+  
   );
 }
