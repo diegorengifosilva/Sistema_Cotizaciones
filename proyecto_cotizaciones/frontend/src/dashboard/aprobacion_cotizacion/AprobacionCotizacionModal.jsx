@@ -1721,6 +1721,14 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
   };
 
   // =============================
+  // Función para cerrar todo
+  // =============================
+  const cerrarTodo = () => {
+    setOpenEliminar(false); // submodal
+    onClose();              // modal padre (Dashboard)
+  };
+
+  // =============================
   // Función para abrir ventana
   // =============================
   const windowsOpen = (url, alto = 980, ancho = 500) => {
@@ -1735,13 +1743,6 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
 
   const numReg = data?.num_reg || cotizacion?.num_reg;
 
-  // =============================
-  // Función para cerrar todo
-  // =============================
-  const cerrarTodo = () => {
-    setOpenEliminar(false); // submodal
-    onClose();              // modal padre (Dashboard)
-  };
 
   // =====================
   // REPORTES
@@ -1753,8 +1754,10 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
       return;
     }
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
     windowsOpen(
-      `/api/cotizaciones/reportes/reporte_suministros_html/${numReg}/`,
+      `${API_URL}/api/cotizaciones/reportes/reporte_suministros_html/${numReg}/`,
       980,
       700
     );
@@ -1763,7 +1766,11 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
   // Reporte Suministros Excel
   const handleExportSuministrosExcel = () => {
     if (!numReg) return console.warn("⚠️ No hay num_reg para generar Excel");
-    window.location.href = `/api/cotizaciones/reportes/reporte_suministros_excel/${numReg}/`;
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    window.location.href =
+      `${API_URL}/cotizaciones/reportes/reporte_suministros_excel/${numReg}/`;
   };
 
   // Reporte Servicios
@@ -1773,18 +1780,24 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
       return;
     }
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
     windowsOpen(
-      `/api/cotizaciones/reportes/reporte_servicios_html/${numReg}/`,
+      `${API_URL}/cotizaciones/reportes/reporte_servicios_html/${numReg}/`,
       980,
       700
     );
+
   };
 
   // Reporte Detallado Cotizacion
   const handleReporteDetallado = () => {
     if (!numReg) return;
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
     window.open(
-      `/api/cotizaciones/reportes/reporte_detallado_cotizacion/${numReg}/`,
+      `${API_URL}/cotizaciones/reportes/reporte_detallado_cotizacion/${numReg}/`,
       "_blank",
       "width=800,height=450,scrollbars=yes,resizable=yes"
     );
@@ -1793,14 +1806,21 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
   // Reporte Detallado Excel
   const handleExportDetalladoExcel = () => {
     if (!numReg) return console.warn("⚠️ No hay num_reg para generar Excel");
-    window.location.href = `/api/cotizaciones/reportes/reporte_detallado_excel/${numReg}/`;
+    
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    window.location.href =
+      `${API_URL}/cotizaciones/reportes/reporte_detallado_excel/${numReg}/`;
   };
 
   // Reporte Detallado Cotizacion
   const handleReporteResumen = () => {
     if (!numReg) return;
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
     window.open(
-      `/api/cotizaciones/reportes/reporte_resumen_cotizacion/${numReg}/`,
+      `${API_URL}/cotizaciones/reportes/reporte_resumen_cotizacion/${numReg}/`,
       "_blank",
       "width=800,height=450,scrollbars=yes,resizable=yes"
     );

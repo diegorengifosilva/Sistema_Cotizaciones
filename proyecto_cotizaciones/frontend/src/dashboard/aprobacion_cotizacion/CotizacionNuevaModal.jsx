@@ -1213,16 +1213,82 @@ export default function CotizacionNuevaModal({ open, onClose, cotizacion, modo, 
   // =====================
   // REPORTES
   // =====================
+  // Reporte Suministros
   const handleReporteSuministros = () => {
     if (!numReg) {
       console.warn("⚠️ No hay num_reg para generar el reporte");
       return;
     }
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
     windowsOpen(
-      `/api/cotizaciones/reportes/reporte_suministros_html/${numReg}/`,
+      `${API_URL}/api/cotizaciones/reportes/reporte_suministros_html/${numReg}/`,
       980,
       700
+    );
+  };
+
+  // Reporte Suministros Excel
+  const handleExportSuministrosExcel = () => {
+    if (!numReg) return console.warn("⚠️ No hay num_reg para generar Excel");
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    window.location.href =
+      `${API_URL}/cotizaciones/reportes/reporte_suministros_excel/${numReg}/`;
+  };
+
+  // Reporte Servicios
+  const handleReporteServicios = () => {
+    if (!numReg) {
+      console.warn("⚠️ No hay num_reg para generar el reporte");
+      return;
+    }
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    windowsOpen(
+      `${API_URL}/cotizaciones/reportes/reporte_servicios_html/${numReg}/`,
+      980,
+      700
+    );
+
+  };
+
+  // Reporte Detallado Cotizacion
+  const handleReporteDetallado = () => {
+    if (!numReg) return;
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    window.open(
+      `${API_URL}/cotizaciones/reportes/reporte_detallado_cotizacion/${numReg}/`,
+      "_blank",
+      "width=800,height=450,scrollbars=yes,resizable=yes"
+    );
+  };
+
+  // Reporte Detallado Excel
+  const handleExportDetalladoExcel = () => {
+    if (!numReg) return console.warn("⚠️ No hay num_reg para generar Excel");
+    
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    window.location.href =
+      `${API_URL}/cotizaciones/reportes/reporte_detallado_excel/${numReg}/`;
+  };
+
+  // Reporte Detallado Cotizacion
+  const handleReporteResumen = () => {
+    if (!numReg) return;
+
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    window.open(
+      `${API_URL}/cotizaciones/reportes/reporte_resumen_cotizacion/${numReg}/`,
+      "_blank",
+      "width=800,height=450,scrollbars=yes,resizable=yes"
     );
   };
   
