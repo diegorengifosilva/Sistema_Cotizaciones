@@ -1803,7 +1803,7 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
     );
   };
 
-  // Reporte Detallado Excel
+  // Reportes Detallado Excel
   const handleExportDetalladoExcel = () => {
     if (!numReg) return console.warn("⚠️ No hay num_reg para generar Excel");
     
