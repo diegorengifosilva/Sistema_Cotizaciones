@@ -1757,7 +1757,7 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
     const API_URL = import.meta.env.VITE_API_URL;
 
     windowsOpen(
-      `${API_URL}/api/cotizaciones/reportes/reporte_suministros_html/${numReg}/`,
+      `${API_URL}/cotizaciones/reportes/reporte_suministros_html/${numReg}/`,
       980,
       700
     );
