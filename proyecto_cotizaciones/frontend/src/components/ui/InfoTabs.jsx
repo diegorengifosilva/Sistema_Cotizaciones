@@ -818,7 +818,7 @@ export default function InfoTabs({
     }
   };
 
-  function SortableGrupoRow({ id, children }) {
+  function SortableGrupoRow({ id, children, className = "" }) {
     const {
       setNodeRef,
       attributes,
@@ -843,11 +843,10 @@ export default function InfoTabs({
         ref={setNodeRef}
         style={style}
         {...attributes}
-        className="bg-slate-100 border-b border-slate-300"
+        {...listeners}
+        className={`bg-slate-100 border-b border-slate-300 ${className}`}
       >
-        {typeof children === "function"
-          ? children({ listeners })
-          : children}
+        {children}
       </tr>
     );
   }
@@ -1063,14 +1062,16 @@ export default function InfoTabs({
     return gruposOrdenados.map((grupo, index) => {
       const contador = String(index + 1).padStart(2, "0");
 
-      const tipo = grupo.cog.slice(2); // 01 o 02
+      const cogActual = grupo.cog ?? grupo.id ?? "";
+
+      const tipo = cogActual.slice(2);
 
       const nuevoCog = `${contador}${tipo}`;
 
       return {
         ...grupo,
         cog: nuevoCog,
-        items: grupo.items.map((item) => ({
+        items: (grupo.items || []).map((item) => ({
           ...item,
           cog: nuevoCog,
         })),
@@ -2253,7 +2254,6 @@ export default function InfoTabs({
                             <React.Fragment key={cog}>
                               {/* CABECERA DE GRUPO - Visible y con acciones fijas */}
                               <SortableGrupoRow id={cog} grupo={grupo}>
-                                <tr className="bg-slate-100 border-b border-slate-300">
                                   <td className="p-1.5 text-center border-r border-slate-200">
                                     <button 
                                       onClick={() => { setGrupoActivo(cog); setItemActivo(null); setOpenItemModal(true); }}
@@ -2334,7 +2334,6 @@ export default function InfoTabs({
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </button>
                                   </td>
-                                </tr>
                               </SortableGrupoRow>
 
                               {/* ITEMS / COLAPSADO */}
