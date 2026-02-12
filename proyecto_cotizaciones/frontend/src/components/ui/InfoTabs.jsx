@@ -1258,6 +1258,17 @@ export default function InfoTabs({
     }
   });
 
+  function handleGhostEnter(e, item, columnIndex) {
+    if (columnIndex === 0 || columnIndex === 8) return; // 1 y 9 visualmente
+
+    hoverTimerRef.current = setTimeout(() => {
+      setGhostItem({
+        item,
+        anchor: e.currentTarget.getBoundingClientRect(),
+      });
+    }, 600);
+  }
+
   // Multi Select + Atajos
   const [selectedItems, setSelectedItems] = useState([]);
   // [{ cog, itemId }]
@@ -2337,7 +2348,7 @@ export default function InfoTabs({
                               </SortableGrupoRow>
 
                               {/* ITEMS / COLAPSADO */}
-                              {/* FILA RESUMEN CUANDO ESTA COLAPSADO */}
+                              {/* FILA RESUMEN COLAPSADO */}
                               {collapsedGrupos[cog] && (
                                 <tr
                                   onClick={() => toggleGrupo(cog)}
@@ -2375,10 +2386,12 @@ export default function InfoTabs({
                                     setGrupoActivo={setGrupoActivo}
                                     setItemActivo={setItemActivo}
                                     setOpenItemModal={setOpenItemModal}
+                                    handleGhostEnter={handleGhostEnter}   // 👈 NUEVO
                                     hoverTimerRef={hoverTimerRef}
                                     setGhostItem={setGhostItem}
                                   />
                               ))}
+
 
                               {ghostItem && (
                                 <GhostPreview
