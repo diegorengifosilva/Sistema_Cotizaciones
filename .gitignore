@@ -44,7 +44,6 @@ db.sqlite3
 # NODE / REACT / VITE
 # ===============================
 node_modules/
-dist/
 build/
 .vite/
 *.map
@@ -60,9 +59,3 @@ metadata.json
 .vscode/
 .idea/
 .DS_Store
-
-# ===============================
-# STATIC GENERADOS
-# ===============================
-staticfiles/
-media/

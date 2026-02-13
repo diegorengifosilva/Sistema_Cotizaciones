@@ -7,15 +7,17 @@ from django.conf.urls.static import static
 from cotizaciones_api.views_frontend import FrontendAppView
 
 urlpatterns = [
-    # API principal
     path('api/', include('cotizaciones_api.urls')),
-
-    # Django admin
     path('admin/', admin.site.urls),
-
-    # Catch-all para React SPA
-    re_path(r'^.*$', FrontendAppView.as_view(), name='frontend'),
 ]
+
+if not settings.DEBUG:
+    urlpatterns += [
+        re_path(r'^.*$', FrontendAppView.as_view(), name='frontend'),
+    ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

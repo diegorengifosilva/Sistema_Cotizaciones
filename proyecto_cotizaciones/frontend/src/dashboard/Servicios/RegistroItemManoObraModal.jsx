@@ -103,41 +103,57 @@ function RegistroItemManoObraModal({ open, onClose, onConfirm, item, areaCotizac
     }
   }, [open, item]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+  const calcularValores = (data, campoModificado = null) => {
+    const next = { ...data };
+
+    const dias = toNumber(next.dias);
+    const hombres = toNumber(next.hombres);
+    const costoDia = toNumber(next.costoDia);
+    let utilidad = toNumber(next.utilidad);
+    let porcentaje = toNumber(next.porcentaje);
+
+    // 🔹 Si editan porcentaje → recalcula utilidad
+    if (campoModificado === "porcentaje" && costoDia > 0) {
+      utilidad = (porcentaje * costoDia) / 100;
+      next.utilidad = utilidad.toFixed(2);
+    }
+
+    // 🔹 Si editan utilidad → recalcula porcentaje
+    if (campoModificado === "utilidad" && costoDia > 0) {
+      porcentaje = (utilidad / costoDia) * 100;
+      next.porcentaje = porcentaje.toFixed(2);
+    }
+
+    // 🔹 Si cambian costoDia
+    if (campoModificado === "costoDia" && costoDia > 0) {
+      porcentaje = utilidad > 0
+        ? (utilidad / costoDia) * 100
+        : porcentaje;
+
+      next.porcentaje = porcentaje.toFixed(2);
+    }
+
+    const costoTotal = costoDia * dias * hombres;
+    const cotizadoDia = costoDia + utilidad;
+    const cotizadoTotal = cotizadoDia * dias * hombres;
+    const utilidadTotal = utilidad * dias * hombres;
+
+    next.costoTotal = costoTotal.toFixed(2);
+    next.cotizadoDia = cotizadoDia.toFixed(2);
+    next.cotizadoTotal = cotizadoTotal.toFixed(2);
+    next.utilidadTotal = utilidadTotal.toFixed(2);
+
+    return next;
   };
 
-  // ==========================
-  // CÁLCULOS AUTOMÁTICOS
-  // ==========================
-  useEffect(() => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setForm(prev => {
-      const dias = Number(prev.dias) || 0;
-      const costoDia = Number(prev.costoDia) || 0;
-      const utilidad = Number(prev.utilidad) || 0;
-      const hombres = Number(prev.hombres) || 0;
-
-      const porcentaje =
-        utilidad > 0 && costoDia > 0
-          ? ((utilidad / costoDia) * 100).toFixed(2)
-          : prev.porcentaje ?? 20.00;
-
-      const costoTotal = (costoDia * dias * hombres).toFixed(2);
-      const cotizadoDia = (costoDia + utilidad).toFixed(2);
-      const cotizadoTotal = (cotizadoDia * dias * hombres).toFixed(2);
-      const utilidadTotal = (utilidad * dias * hombres).toFixed(2);
-
-      return {
-        ...prev,
-        porcentaje,
-        costoTotal,
-        cotizadoDia,
-        cotizadoTotal,
-        utilidadTotal,
-      };
+      const actualizado = { ...prev, [name]: value };
+      return calcularValores(actualizado, name);
     });
-  }, [form.dias, form.costoDia, form.utilidad, form.hombres]);
+  };
 
   const handleSubmit = () => {
     if (!form.area || !form.descripcion.trim()) return;
@@ -225,7 +241,9 @@ function RegistroItemManoObraModal({ open, onClose, onConfirm, item, areaCotizac
                 <span className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Variables y Costo</span>
               </div>
               <div className="space-y-3">
-                <InputField inline size="sm" type="number" label="Cantidad Hombres:" name="hombres" value={form.hombres} onChange={handleChange} />
+                <div className="grid grid-cols-2 gap-2">
+                <InputField inline size="sm" type="number" label="Hombres:" name="hombres" value={form.hombres} onChange={handleChange} />
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <InputField inline size="sm" type="number" label="Días:" name="dias" value={form.dias} onChange={handleChange} />
                   <InputField inline size="sm" type="number" label="Horas:" name="horas" value={form.horas} onChange={handleChange} />
@@ -278,13 +296,20 @@ function RegistroItemManoObraModal({ open, onClose, onConfirm, item, areaCotizac
           open={tipoPersonalModalOpen}
           onClose={() => setTipoPersonalModalOpen(false)}
           areaSeleccionada={form.area}
-          onSelect={(registro, costoSeleccionado) => 
-              setForm(prev => ({
-              ...prev,
-              personal: `${registro.codigo} - ${registro.nombre}`,
-              personalCodigo: registro.codigo,
-              costoDia: parseFloat(costoSeleccionado).toFixed(2),
-            }))}
+          onSelect={(registro, costoSeleccionado) =>
+            setForm(prev => {
+              const actualizado = {
+                ...prev,
+                personal: `${registro.codigo} - ${registro.nombre}`,
+                personalCodigo: registro.codigo,
+                costoDia: parseFloat(costoSeleccionado),
+                porcentaje: 20, // 🔹 Forzamos 20%
+              };
+
+              return calcularValores(actualizado, "porcentaje");
+            })
+          }
+
         />
       </DialogContent>
     </Dialog>
