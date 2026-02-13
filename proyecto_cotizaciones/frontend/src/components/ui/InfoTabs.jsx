@@ -763,7 +763,7 @@ export default function InfoTabs({
   // =====================
   const grupos = {};
 
-  // 1) Crear grupos usando nig = 0
+  // 1. Crear grupos usando nig = 0
   suministros
     .filter(item => Number(item.nig) === 0)
     .forEach(header => {
@@ -780,7 +780,7 @@ export default function InfoTabs({
       };
     });
 
-  // 2) Agregar filas hijas (nig > 0)
+  // 2. Agregar filas hijas (nig > 0)
   suministros
     .filter(item => Number(item.nig) > 0)
     .forEach(item => {
@@ -789,14 +789,48 @@ export default function InfoTabs({
       }
     });
 
-  // 3) Calcular subtotal y totalPorGrupo para cada grupo
+  // 3. Calcular subtotal y totalPorGrupo para cada grupo
   Object.values(grupos).forEach(grp => {
     const subtotal = grp.items.reduce((acc, it) => acc + (Number(it.tot) || 0), 0);
     grp.subtotal = subtotal;                     // suma de totales de items
     grp.totalPorGrupo = subtotal * (grp.cantidad || 1); // multiplicado por cantidad del grupo
   });
 
-  // Mover Grupos e Items
+  // 4. Render
+  const gruposRender =
+    Object.keys(gruposSuministros || {}).length > 0
+      ? gruposSuministros
+      : grupos;
+
+  // 5. Grupos calculados
+  const gruposCalculados = useMemo(() => {
+    return Object.entries(gruposRender).map(([cog, grupo]) => {
+      const subtotal = (grupo.items || []).reduce(
+        (acc, it) => acc + (Number(it.tot) || 0),
+        0
+      );
+
+      const cantidad = Number(grupo.cantidad ?? 1);
+      const totalPorGrupo = subtotal * cantidad;
+
+      return {
+        ...grupo,
+        cog,
+        subtotal,
+        totalPorGrupo,
+      };
+    });
+  }, [gruposRender]);
+
+  // 6. Total General Suministros
+  const totalGeneral = useMemo(() => {
+    return gruposCalculados.reduce(
+      (acc, grupo) => acc + grupo.totalPorGrupo,
+      0
+    );
+  }, [gruposCalculados]);
+
+  // 7. Mover Grupos e Items
   const gruposOrdenados = useMemo(() => {
     const base =
       Object.keys(gruposSuministros || {}).length > 0
@@ -818,7 +852,7 @@ export default function InfoTabs({
     }
   };
 
-  function SortableGrupoRow({ id, children, className = "" }) {
+  function SortableGrupoRow({ id, children, className = "", highlightId }) {
     const {
       setNodeRef,
       attributes,
@@ -840,11 +874,16 @@ export default function InfoTabs({
 
     return (
       <tr
+        id={`row-${id}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
         {...listeners}
-        className={`bg-slate-100 border-b border-slate-300 ${className}`}
+        className={`
+          bg-slate-100 border-b border-slate-300 transition-all duration-700
+          ${highlightId === id ? "bg-teal-50 ring-2 ring-teal-400" : ""}
+          ${className}
+        `}
       >
         {children}
       </tr>
@@ -864,6 +903,7 @@ export default function InfoTabs({
     setOpenItemModal,
     hoverTimerRef,
     setGhostItem,
+    highlightId,
   }) {
     const {
       attributes,
@@ -892,6 +932,7 @@ export default function InfoTabs({
 
     return (
       <tr
+        id={`row-${item.id}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
@@ -901,34 +942,15 @@ export default function InfoTabs({
           setItemActivo(item);
           setOpenItemModal(true);
         }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget;
-
-          hoverTimerRef.current = setTimeout(() => {
-            if (!el) return;
-
-            const rect = el.getBoundingClientRect();
-            if (!rect) return;
-
-            setGhostItem({
-              cog,
-              item,
-              anchor: rect,
-            });
-          }, 1500);
-        }}
-        onMouseLeave={() => {
-          clearTimeout(hoverTimerRef.current);
-          setGhostItem(null);
-        }}
         onClick={(e) => handleRowClick(e, cog, item, index, grupo)}
         className={`
-          border-b border-slate-200 cursor-pointer transition-colors
+          border-b border-slate-200 cursor-pointer transition-all duration-700
           hover:bg-sky-100/90
           ${isSelected ? "bg-teal-100 ring-2 ring-teal-500/40" : ""}
+          ${highlightId === item.id ? "bg-yellow-50 ring-2 ring-yellow-400" : ""}
         `}
       >
-        {/* ===== HANDLE DRAG SOLO EN NRO ===== */}
+        {/* ===== COLUMNA 1 - DRAG (SIN GHOST) ===== */}
         <td
           {...listeners}
           onClick={(e) => e.stopPropagation()}
@@ -937,34 +959,49 @@ export default function InfoTabs({
           {index + 1}
         </td>
 
-        <td className="px-2 py-1 text-slate-900 border-r border-slate-100 font-mono text-[10px] font-semibold tracking-tighter">
-          {item.cod}
-        </td>
+        {/* ===== COLUMNAS CON GHOST ===== */}
+        {[
+          { value: item.cod, className: "px-2 py-1 text-slate-900 border-r border-slate-100 font-mono text-[10px] font-semibold tracking-tighter" },
+          { value: item.des, className: "px-3 py-1 text-slate-800 border-r border-slate-100 font-semibold leading-snug" },
+          { value: item.pro, className: "px-2 py-1 text-slate-700 border-r border-slate-100 text-center text-[10px] font-medium uppercase" },
+          { value: item.tde, className: "px-1 py-1 text-slate-700 border-r border-slate-100 text-center font-bold" },
+          { value: item.can, className: "px-1 py-1 text-slate-900 border-r border-slate-100 text-center font-black" },
+          { value: Number(item.val).toFixed(2), className: "px-2 py-1 text-slate-700 border-r border-slate-100 text-right pr-3 font-medium" },
+          { value: Number(item.tot).toFixed(2), className: "px-2 py-1 text-slate-900 border-r border-slate-100 text-right pr-3 font-black bg-slate-50/50" },
+        ].map((col, i) => (
+          <td
+            key={i}
+            className={col.className}
+            onMouseEnter={(e) => {
+              if (isDragging) return;
 
-        <td className="px-3 py-1 text-slate-800 border-r border-slate-100 font-semibold leading-snug">
-          {item.des}
-        </td>
+              clearTimeout(hoverTimerRef.current);
 
-        <td className="px-2 py-1 text-slate-700 border-r border-slate-100 text-center text-[10px] font-medium uppercase">
-          {item.pro}
-        </td>
+              const el = e.currentTarget; // 👈 guardamos referencia real
 
-        <td className="px-1 py-1 text-slate-700 border-r border-slate-100 text-center font-bold">
-          {item.tde}
-        </td>
+              hoverTimerRef.current = setTimeout(() => {
+                if (!el) return;
 
-        <td className="px-1 py-1 text-slate-900 border-r border-slate-100 text-center font-black">
-          {item.can}
-        </td>
+                const rect = el.getBoundingClientRect();
+                if (!rect) return;
 
-        <td className="px-2 py-1 text-slate-700 border-r border-slate-100 text-right pr-3 font-medium">
-          {Number(item.val).toFixed(2)}
-        </td>
+                setGhostItem({
+                  cog,
+                  item,
+                  anchor: rect,
+                });
+              }, 800);
+            }}
 
-        <td className="px-2 py-1 text-slate-900 border-r border-slate-100 text-right pr-3 font-black bg-slate-50/50">
-          {Number(item.tot).toFixed(2)}
-        </td>
+            onMouseLeave={() => {
+              clearTimeout(hoverTimerRef.current);
+            }}
+          >
+            {col.value}
+          </td>
+        ))}
 
+        {/* ===== COLUMNA 9 - ELIMINAR (SIN GHOST) ===== */}
         <td className="px-1 py-1 text-center">
           <button
             onClick={(e) => {
@@ -1057,7 +1094,7 @@ export default function InfoTabs({
     });
   };
 
-  // Reordenar y renumerar grupos e items
+  // 8. Reordenar y renumerar grupos e items
   function renumerarGrupos(gruposOrdenados) {
     return gruposOrdenados.map((grupo, index) => {
       const contador = String(index + 1).padStart(2, "0");
@@ -1079,25 +1116,7 @@ export default function InfoTabs({
     });
   }
 
-  // Render
-  const gruposRender =
-    Object.keys(gruposSuministros || {}).length > 0
-      ? gruposSuministros
-      : grupos;
-
-  // Total General Suministros
-  const totalGeneral = Object.values(gruposRender).reduce((acc, grupo) => {
-    const subtotal = (grupo.items || []).reduce(
-      (sum, it) => sum + (Number(it.tot) || 0),
-      0
-    );
-
-    const cantidad = Number(grupo.cantidad ?? 1);
-
-    return acc + subtotal * cantidad;
-  }, 0);
-
-  // Modal Fantasma
+  // 9. Modal Fantasma
   const [ghostItem, setGhostItem] = useState(null);
   const hoverTimerRef = useRef(null);
 
@@ -1269,7 +1288,7 @@ export default function InfoTabs({
     }, 600);
   }
 
-  // Multi Select + Atajos
+  // 10. Multi Select + Atajos
   const [selectedItems, setSelectedItems] = useState([]);
   // [{ cog, itemId }]
   const lastSelectedRef = useRef(null);
@@ -1441,7 +1460,7 @@ export default function InfoTabs({
     };
   };
 
-  // Autofocus
+  // 11. Autofocus
   const [focusField, setFocusField] = useState(null);
   const codigoRef = useRef(null);
   const cantidadRef = useRef(null);
@@ -1468,7 +1487,7 @@ export default function InfoTabs({
     }
   }, [focusField, openItemModal]);
 
-  // Grupo Colapsable
+  // 12. Grupo Colapsable
   const [collapsedGrupos, setCollapsedGrupos] = useState({});
 
   const toggleGrupo = (cog) => {
@@ -1477,6 +1496,41 @@ export default function InfoTabs({
       [cog]: !prev[cog],
     }));
   };
+
+  // 13. Scroll auto a item nuevo
+  const [highlightId, setHighlightId] = useState(null);
+
+  const triggerHighlight = (id) => {
+    setHighlightId(id);
+
+    setTimeout(() => {
+      setHighlightId(null);
+    }, 2000);
+  };
+
+  const scrollToRow = (id) => {
+    const el = document.getElementById(`row-${id}`);
+    if (!el) return;
+
+    el.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
+  useEffect(() => {
+    if (!gruposCalculados.length) return;
+
+    const ultimoGrupo = gruposCalculados[gruposCalculados.length - 1];
+    if (!ultimoGrupo?.items?.length) return;
+
+    const ultimoItem = ultimoGrupo.items[ultimoGrupo.items.length - 1];
+
+    if (ultimoItem?.id) {
+      triggerHighlight(ultimoItem.id);
+      setTimeout(() => scrollToRow(ultimoItem.id), 120);
+    }
+  }, [gruposCalculados]);
 
   // =======================
   // TABLA SERVICIOS
@@ -1640,19 +1694,32 @@ export default function InfoTabs({
   // fallback seguro
   const acciones = GESTION_ACTIONS[modo] ?? GESTION_ACTIONS.C;
 
-  // ================
+  // =================
   // ELIMINAR GRUPO
-  // ================
+  // =================
   const handleEliminarGrupo = (cog) => {
-    if (!confirm("¿Eliminar este grupo y todos sus ítems?")) return;
-
     setGruposSuministros(prev => {
+      const grupo = prev[cog];
+      if (!grupo) return prev;
+
+      const cantidadItems = grupo.items?.length || 0;
+
+      // Si tiene ítems → confirmación fuerte
+      if (cantidadItems > 0) {
+        const confirmar = window.confirm(
+          `Este grupo contiene ${cantidadItems} ítems.\n\n¿Deseas eliminarlo junto con todo su contenido?`
+        );
+
+        if (!confirmar) return prev;
+      }
+
+      // Eliminación segura
       const copia = { ...prev };
       delete copia[cog];
       return copia;
     });
   };
-  
+
   // ===============
   // ELIMINAR ITEM
   // ===============
@@ -2001,7 +2068,7 @@ export default function InfoTabs({
 
                   <div className="grid grid-cols-2 gap-2 border-t border-gray-100 pt-2">
                     <SelectField id="prob" inline size="sm" label="Probabilidad:*" value={data.prob || ""} onChange={(e) => handleFieldChange("prob", e.target.value)} options={probOptions} disabled={isReadOnly} className={campoError === "prob" ? "border-red-500" : ""} />
-                    <InputField inline size="sm" label="Total Cot.:" value={data.tot_c ? `S/ ${Number(data.tot_c).toFixed(2)}` : "-"} readOnly className="font-bold text-gray-900" />
+                    <InputField inline size="sm" label="Total Cotzacion:" value={data.tot_c ? `${Number(data.tot_c).toFixed(2)}` : "-"} readOnly className="font-bold text-gray-900" />
                   </div>
                 </div>
 
@@ -2251,20 +2318,19 @@ export default function InfoTabs({
                       onDragEnd={handleDragEnd}
                     >
                       <SortableContext
-                        items={gruposOrdenados.map((g) => g.cog)}
+                        items={gruposCalculados.map((g) => g.cog)}
                         strategy={verticalListSortingStrategy}
                       >
-                        {gruposOrdenados.map((grupo) => {
-                          const cog = grupo.cog;
-
-                          const subtotal = grupo.items.reduce((acc, it) => acc + (Number(it.tot) || 0), 0);
-                          const canGrupo = Number(grupo.cantidad ?? 1);
+                        {gruposCalculados.map((grupo) => {
+                          const { cog, subtotal, totalPorGrupo, cantidad } = grupo;
+                          const canGrupo = cantidad;
                           const tipo = parseCog(grupo.cog ?? cog).tipo;
+
 
                           return (
                             <React.Fragment key={cog}>
                               {/* CABECERA DE GRUPO - Visible y con acciones fijas */}
-                              <SortableGrupoRow id={cog} grupo={grupo}>
+                              <SortableGrupoRow id={cog} grupo={grupo} highlightId={highlightId}>
                                   <td className="p-1.5 text-center border-r border-slate-200">
                                     <button 
                                       onClick={() => { setGrupoActivo(cog); setItemActivo(null); setOpenItemModal(true); }}
@@ -2389,6 +2455,7 @@ export default function InfoTabs({
                                     handleGhostEnter={handleGhostEnter}   // 👈 NUEVO
                                     hoverTimerRef={hoverTimerRef}
                                     setGhostItem={setGhostItem}
+                                    highlightId={highlightId}
                                   />
                               ))}
 
@@ -2412,7 +2479,7 @@ export default function InfoTabs({
                                   Subtotal {tipo}:
                                 </td>
                                 <td className="px-2 py-1 text-right pr-3 font-extrabold text-slate-900 border-l border-slate-200">
-                                  {subtotal.toFixed(2)}
+                                  {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </td>
                                 <td className="bg-white"></td>
                               </tr>
@@ -2430,7 +2497,7 @@ export default function InfoTabs({
                                   Total {tipo}:
                                 </td>
                                 <td className="px-2 py-2 text-right pr-3 font-black text-teal-700 text-[13px] border-l-4 border-teal-600 bg-teal-50/50">
-                                  {((subtotal || 0) * (canGrupo || 1)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                  {totalPorGrupo.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </td>
                                 <td className="bg-white"></td>
                               </tr>
@@ -2522,7 +2589,7 @@ export default function InfoTabs({
                       return (
                         <React.Fragment key={servicio.id || sIdx}>
                           {/* CABECERA DE SERVICIO (Nivel 1) */}
-                          <tr className="bg-slate-300 text-slate-800 border-b border-slate-400">
+                          <tr className="bg-slate-300 text-slate-800 border-b border-slate-300">
                             <td className="p-1.5 text-center border-r border-slate-400">
                               <button
                                 onClick={() => { setSelectedServicioId(servicio.id); setOpenSubgrupoModal(true); }}
@@ -2566,7 +2633,7 @@ export default function InfoTabs({
                             const subtotalSubgrupo = (sub.items || []).reduce((acc, it) => acc + (Number(it.tot) || 0), 0);
                             return (
                               <React.Fragment key={sub.id || idx}>
-                                <tr className="bg-slate-100 border-b border-slate-300">
+                                <tr className="bg-slate-100 border-b border-slate-200">
                                   <td className="p-1 text-center border-r border-slate-200"></td>
                                   <td colSpan={5} className="px-3 py-1 border-r border-slate-200">
                                     <div className="flex items-center gap-3">
