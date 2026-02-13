@@ -1,5 +1,7 @@
 {% load static %}
 {% load humanize %}
+{% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -209,6 +211,19 @@ h2{
 </div>
 </div>
 <h2>REPORTE SUMINISTROS</h2>
+
+<div class="header">
+    <div>
+        <img class="logo-img" src="{% static 'logo.png' %}" alt="Logo Empresa">
+    </div>
+
+    <div class="excel-btn">
+        <a href="{{ url_excel }}">
+            <img src="{% static 'importar-xls.png' %}" alt="excel">
+            Exportar Excel
+        </a>
+    </div>
+</div>
 
 <!-- CONTENEDOR GENERAL PARA EXPORTAR A EXCEL -->
 <div id="tabla_suministros">

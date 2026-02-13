@@ -58,7 +58,7 @@ export default function SubgrupoModal({ open, onClose, onConfirm, subgrupo = nul
   };
 
   const handleSubmit = () => {
-    if (!form.tipoGasto || !form.nombre.trim()) return;
+    if (!form.tipoGasto) return;
 
     onConfirm({
       ...form,

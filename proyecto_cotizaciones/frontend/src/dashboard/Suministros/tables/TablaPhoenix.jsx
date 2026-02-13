@@ -101,7 +101,6 @@ export default function TablaPhoenix({
                     costoTotal: Number((costoPrecio * cantidad).toFixed(2)) ?? 0.00,
                     ventaPrecio: Number(precioCosto.toFixed(2)) ?? 0.00,
                     ventaTotal: Number((precioCosto * cantidad).toFixed(2)) ?? 0.00,
-                    utilidad: 0,
                     precioLista,
                     precioCosto,
                     granCliente,
