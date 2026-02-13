@@ -7,7 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-.env.local
+
 
 # Editor directories and files
 .vscode/*
@@ -37,9 +37,8 @@ db.sqlite3
 # ===============================
 # ENVIRONMENTS
 # ===============================
-.env
-.env.*
-.env.local
+
+
 
 # ===============================
 # NODE / REACT / VITE
