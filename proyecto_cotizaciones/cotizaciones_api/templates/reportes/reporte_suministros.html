@@ -7,18 +7,24 @@
 <title>Reporte Suministros</title>
 
 <style>
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 12px;
-        color: #333;
-        margin: 20px;
-    }
+body{
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color:#2b2b2b;
+    margin:20px;
+    background:#ffffff;
+}
 
-    h2 {
-        text-align: center;
-        margin-bottom: 25px;
-        letter-spacing: 1px;
-    }
+
+/* ====== TITULOS ====== */
+h2{
+    text-align:center;
+    margin:8px 0 0;
+    font-size:20px;
+    letter-spacing:.5px;
+    color:#0f766e;
+    font-weight:700;
+}
 
     /* SUBTÍTULO DE GRUPO */
     .grupo-titulo {
@@ -49,12 +55,15 @@
         font-weight: bold;
     }
 
-    /* SUBCABECERA */
-    .sub-header th {
-        background-color: #008080;
-        color: white;
-        font-size: 11px;
-    }
+/* ====== HEADER ====== */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:3px solid #0f766e;
+    padding-bottom:12px;
+    margin-bottom:18px;
+}
 
     td {
         vertical-align: middle;
@@ -64,7 +73,8 @@
     .text-right { text-align: right; }
     .text-center { text-align: center; }
 
-    /* ---------- HEADER ---------- */
+
+        /* ---------- HEADER ---------- */
     .header {
         display: flex;
         justify-content: space-between;
@@ -93,26 +103,112 @@
         color: #1D6F42;
         font-weight: bold;
     }
+  /* ===== TABLA PROFESIONAL ===== */
+.tabla-suministros{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 18px;
+
+    /* BORDE EXTERNO GRUESO */
+    border: 2px solid #2f2f2f;
+}
+
+/* bordes internos */
+.tabla-suministros th,
+.tabla-suministros td{
+    border: 1px solid #9a9a9a;
+    padding: 6px 8px;
+}
+
+/* cabecera principal */
+.tabla-suministros thead tr:first-child th{
+    background: #008080;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #2f2f2f;
+}
+
+/* sub cabecera */
+.tabla-suministros .sub-header th{
+    background: #06adad;
+    color: #000;
+    font-weight: bold;
+}
+
+/* zebra rows */
+.tabla-suministros tbody tr:nth-child(even){
+    background: #f7f7f7;
+}
+
+/* hover (solo visual navegador) */
+.tabla-suministros tbody tr:hover{
+    background: #eef6ff;
+}
+
+
+.text-center{
+    text-align: center;
+}
+
+/* primera columna resaltada */
+.tabla-suministros td:first-child{
+    font-weight: bold;
+}
+
+/* separador inferior total grupo */
+.grupo-titulo {
+    background: #0f4c5c;
+    color: white;
+    padding: 6px;
+    font-weight: bold;
+    border: 2px solid #2f2f2f;
+    border-bottom: none;
+}
+
+/* ====== BOTON EXCEL ====== */
+.excel-btn button{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    background:#1D6F42;
+    border:none;
+    border-radius:6px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
+    transition:.2s ease;
+}
+
+.excel-btn button:hover{
+    background:#155c36;
+    transform:translateY(-1px);
+}
+
+.excel-btn img{
+    width:18px;
+}
 
 </style>
 </head>
 
 <body>
-
-<h2>REPORTE SUMINISTROS</h2>
-
 <div class="header">
     <div>
         <img class="logo-img" src="{% static 'logo.png' %}" alt="Logo Empresa">
     </div>
 
-    <div class="excel-btn">
-        <a href="{{ url_excel }}">
-            <img src="{% static 'importar-xls.png' %}" alt="excel">
-            Exportar Excel
-        </a>
-    </div>
+ <div class="excel-btn">
+    <button type="button" id="btnExcel">
+        <img src="{% static 'importar-xls.png' %}" alt="excel">
+        Exportar Excel
+    </button>
 </div>
+</div>
+<h2>REPORTE SUMINISTROS</h2>
 
 <!-- CONTENEDOR GENERAL PARA EXPORTAR A EXCEL -->
 <div id="tabla_suministros">
@@ -120,7 +216,10 @@
 {% for grupo in grupos.values %}
 
     <div class="grupo-titulo">
-        {{ grupo.tipo }} - {{ grupo.titulo }}
+       <tr colspan="10">
+            {{ grupo.tipo }} - {{ grupo.titulo }}
+       </tr>
+
     </div>
 
     <table class="tabla-suministros">
@@ -167,36 +266,114 @@
 
 <!-- EXPORTAR A EXCEL -->
 <script>
+
+document.getElementById("btnExcel").addEventListener("click", function(e){
+    e.preventDefault(); // evita que recargue la página
+
+    tableToExcel(
+        "tabla_suministros",   // id del contenedor
+        "{{ num_reg }}",       // nombre de la hoja
+        "REPORTE_SUMINISTROS.xls"  // nombre del archivo
+    );
+});
+
 var tableToExcel = (function () {
     var uri = "data:application/vnd.ms-excel;base64,";
-    var template = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:x="urn:schemas-microsoft-com:office:excel"
-          xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-    <meta charset="UTF-8">
-    <style>
-        table, th, td {
-            border: 1px solid #000;
-            border-collapse: collapse;
-        }
-        th {
-            background: #008080;
-            color: #fff;
-            font-weight: bold;
-            text-align: center;
-        }
+  var template = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+/* ====== TABLA PROFESIONAL EXCEL ====== */
+   th {
+        background-color: #008080;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+    }
         td {
             font-size: 12px;
         }
-        .text-right { mso-number-format:"#,##0.00"; text-align:right; }
-        .text-center { text-align:center; }
-    </style>
-    </head>
-    <body>
-        <table>{table}</table>
-    </body>
-    </html>`;
+.tabla-suministros{
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px;
+    border: 2px solid #2f2f2f;
+}
+
+/* bordes internos */
+.tabla-suministros th,
+.tabla-suministros td{
+    border: 1px solid #9a9a9a;
+    padding: 6px 8px;
+}
+
+/* cabecera principal */
+.tabla-suministros thead tr:first-child th{
+    background: #008080;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #2f2f2f;
+}
+
+/* subcabecera */
+.sub-header th{
+    background: #06adad;
+    color: #000;
+    font-weight: bold;
+}
+
+/* filas alternadas */
+.tabla-suministros tbody tr:nth-child(even){
+    background: #f2f2f2;
+}
+
+
+/* separador inferior total grupo */
+.grupo-titulo {
+    background: #0f4c5c;
+    color: #000;
+    padding: 6px;
+    font-weight: bold;
+    border: 2px solid #2f2f2f;
+    border-bottom: none;
+}
+
+/* alineaciones */
+.text-right{
+    mso-number-format:"#,##0.00";
+    text-align:right;
+}
+.text-center{
+    text-align:center;
+}
+
+.grupo-titulo tr{
+    background:#0f4c5c;
+    color:#ffffff;
+    font-weight:bold;
+    text-align:left;
+    padding:7px 8px;
+    border:2px solid #2f2f2f;
+    letter-spacing:.5px;
+    font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+<table>{table}</table>
+</body>
+</html>`;
+
+
+
 
     function base64(s) {
         return window.btoa(unescape(encodeURIComponent(s)));

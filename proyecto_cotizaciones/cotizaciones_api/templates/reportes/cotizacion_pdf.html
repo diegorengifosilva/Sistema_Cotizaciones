@@ -580,32 +580,81 @@
         </div>
 
         <div class="summary-grid" style="margin-top: 0;">
-            <div class="summary-item">
-                <div class="data-card">
-                    <span class="label">Contacto Comercial:</span>
-                    <div class="value">
-                        {{ cabecera.comercial.nombre }}<br>
-                        <span style="font-size: 11px; font-weight: 400;">Teléfono: {{ cabecera.comercial.telefono }}</span>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.movil1 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.movil2 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.movil3 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.correo }}</span><br>
-                    </div>
-                </div>
-            </div>
-            <div class="summary-item">
-                <div class="data-card">
-                    <span class="label">Contacto Técnico:</span>
-                    <div class="value">
-                        {{ cabecera.tecnico.nombre }}<br>
-                        <span style="font-size: 11px; font-weight: 400;">Teléfono: {{ cabecera.tecnico.telefono }}</span>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.movil1 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.movil2 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.movil3 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.correo }}</span><br>
-                    </div>
-                </div>
-            </div>
+          <div class="summary-item">
+    <div class="data-card">
+        <span class="label">Contacto Comercial:</span>
+
+        {% if cabecera.comercial.nombre or cabecera.comercial.telefono or cabecera.comercial.movil1 or cabecera.comercial.movil2 or cabecera.comercial.movil3 or cabecera.comercial.correo %}
+        <div class="value">
+
+            {% if cabecera.comercial.nombre %}
+                <div class="line strong">{{ cabecera.comercial.nombre }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.telefono %}
+                <div class="line">Teléfono: {{ cabecera.comercial.telefono }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.movil1 %}
+                <div class="line">{{ cabecera.comercial.movil1 }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.movil2 %}
+                <div class="line">{{ cabecera.comercial.movil2 }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.movil3 %}
+                <div class="line">{{ cabecera.comercial.movil3 }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.correo %}
+                <div class="line">{{ cabecera.comercial.correo }}</div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+<div class="summary-item">
+    <div class="data-card">
+        <span class="label">Contacto Técnico:</span>
+
+        {% if cabecera.tecnico.nombre or cabecera.tecnico.telefono or cabecera.tecnico.movil1 or cabecera.tecnico.movil2 or cabecera.tecnico.movil3 or cabecera.tecnico.correo %}
+        <div class="value">
+
+            {% if cabecera.tecnico.nombre %}
+                <div class="line strong">{{ cabecera.tecnico.nombre }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.telefono %}
+                <div class="line">Teléfono: {{ cabecera.tecnico.telefono }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.movil1 %}
+                <div class="line">{{ cabecera.tecnico.movil1 }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.movil2 %}
+                <div class="line">{{ cabecera.tecnico.movil2 }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.movil3 %}
+                <div class="line">{{ cabecera.tecnico.movil3 }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.correo %}
+                <div class="line">{{ cabecera.tecnico.correo }}</div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
         </div>
 
         <div style="margin-top: 10px;">

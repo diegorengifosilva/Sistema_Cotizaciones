@@ -6,75 +6,139 @@
 <meta charset="UTF-8">
 <title>{{ titulo }} - {{ proyecto }}</title>
 <style>
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 12px;
-        color: #333;
-        margin: 10px;
+/* ====== BASE ====== */
+body{
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color:#2b2b2b;
+    margin:20px;
+    background:#ffffff;
+}
+
+/* ====== HEADER ====== */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:3px solid #0f766e;
+    padding-bottom:12px;
+    margin-bottom:18px;
+}
+
+.logo-img{
+    width:150px;
+}
+
+/* ====== BOTON EXCEL ====== */
+.excel-btn button{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    background:#1D6F42;
+    border:none;
+    border-radius:6px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
+    transition:.2s ease;
+}
+
+.excel-btn button:hover{
+    background:#155c36;
+    transform:translateY(-1px);
+}
+
+.excel-btn img{
+    width:18px;
+}
+
+/* ====== TITULOS ====== */
+h2{
+    text-align:center;
+    margin:8px 0 0;
+    font-size:20px;
+    letter-spacing:.5px;
+    color:#0f766e;
+    font-weight:700;
+}
+
+h3{
+    text-align:center;
+    margin:4px 0 18px;
+    font-size:13px;
+    font-weight:600;
+    color:#374151;
+}
+
+/* ====== TABLA ====== */
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+/* encabezado */
+thead th{
+    background:#008080;
+    color:white;
+    padding:9px 6px;
+    text-align:center;
+    font-weight:700;
+    border:1px solid #0c5f58;
+}
+
+/* filas */
+tbody td{
+    padding:7px 8px;
+    border:1px solid #d1d5db;
+}
+
+/* zebra profesional */
+tbody tr:nth-child(even){
+    background:#f4f6f7;
+}
+
+/* hover visual (solo pantalla) */
+tbody tr:hover{
+    background:#e6f4f1;
+}
+
+/* alineaciones */
+.text-right{
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+}
+
+.text-center{
+    text-align:center;
+}
+
+/* ====== FILA TOTAL ====== */
+.total-final td{
+    background:#0f766e !important;
+    color:white;
+    font-weight:700;
+    font-size:13px;
+    border-top:2px solid #0c5f58;
+}
+
+/* ====== MODO IMPRESION ====== */
+@media print{
+    .excel-btn{
+        display:none;
     }
 
-    h2 {
-        text-align: center;
-        margin-bottom: 15px;
-        color: #008080;
-        letter-spacing: 1px;
+    body{
+        margin:0;
     }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
+    table{
+        font-size:11px;
     }
+}
 
-    th, td {
-        border: 1px solid #cbd5e1;
-        padding: 6px;
-    }
-
-    th {
-        background-color: #008080;
-        color: white;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    td.text-right { text-align: right; }
-    td.text-center { text-align: center; }
-
-    .total-final {
-        font-weight: bold;
-    }
-
-
-        /* ---------- HEADER ---------- */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
-
-    .header img.logo-img {
-        width: 140px;
-        height: auto;
-    }
-
-    .excel-btn {
-        text-align: center;
-        font-size: 10px;
-    }
-
-    .excel-btn img {
-        width: 38px;
-        display: block;
-        margin: auto;
-    }
-
-    .excel-btn a {
-        text-decoration: none;
-        color: #1D6F42;
-        font-weight: bold;
-    }
-    
 </style>
 </head>
 <body>
@@ -84,19 +148,22 @@
         <img class="logo-img" src="{% static 'logo.png' %}" alt="Logo Empresa">
     </div>
 
-    <div class="excel-btn">
-        <a href="{{ url_excel }}">
-            <img src="{% static 'importar-xls.png' %}" alt="excel">
-            Exportar Excel
-        </a>
-    </div>
+   <div class="excel-btn">
+    <button type="button" id="btnExcel_detallecot">
+        <img src="{% static 'importar-xls.png' %}" alt="excel">
+        Exportar Excel
+    </button>
+</div>
+
 </div>
 
     
 <h2>{{ titulo }}</h2>
+<div id="contenedor_tabla">
+
 <h3 style="text-align:center;">PROYECTO: {{ proyecto }}</h3>
 
-<table>
+<table id="tabla_detalle_cotizacion">
     <thead>
         <tr>
             <th>CONCEPTO</th>
@@ -109,17 +176,127 @@
         {% for fila in datos %}
         <tr>
             <td>{{ fila.concepto }}</td>
-            <td class="text-right">{{ fila.costo|floatformat:2|intcomma }}</td>
-            <td class="text-right">{{ fila.ganancia|floatformat:2|intcomma }}</td>
-            <td class="text-right">{{ fila.total|floatformat:2|intcomma }}</td>
+         <td class="text-right" data-num="{{ fila.costo }}">{{ fila.costo|floatformat:2|intcomma }}</td>
+<td class="text-right" data-num="{{ fila.ganancia }}">{{ fila.ganancia|floatformat:2|intcomma }}</td>
+<td class="text-right" data-num="{{ fila.total }}">{{ fila.total|floatformat:2|intcomma }}</td>
+
         </tr>
         {% endfor %}
         <tr class="total-final">
             <td colspan="3" style="text-align:right;">TOTAL FINAL</td>
-            <td class="text-right">{{ total_final|floatformat:2 |intcomma}}</td>
+<td class="text-right" data-num="{{ total_final }}">{{ total_final|floatformat:2|intcomma }}</td>
         </tr>
     </tbody>
 </table>
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    document.getElementById("btnExcel_detallecot").addEventListener("click", function(e){
+        e.preventDefault();
+
+        exportarExcelReal();
+    });
+
+});
+
+
+function exportarExcelReal(){
+
+const tabla = document.getElementById("tabla_detalle_cotizacion");
+    const filas = tabla.querySelectorAll("tr");
+
+    let excel = `
+    <table border="1" style="border-collapse:collapse;font-family:Segoe UI;font-size:12px;">`;
+
+    /* ===== TITULO ===== */
+    excel += `
+    <tr>
+        <td colspan="4" style="font-size:18px;font-weight:bold;text-align:center;background:#0f766e;color:white;padding:10px;">
+            {{ titulo }}
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4" style="text-align:center;font-weight:bold;padding:6px;">
+            PROYECTO: {{ proyecto }}
+        </td>
+    </tr>
+    <tr><td colspan="4"></td></tr>
+    `;
+
+    /* ===== TABLA ===== */
+    filas.forEach((row,i)=>{
+
+        excel += "<tr>";
+
+        row.querySelectorAll("th,td").forEach(cell=>{
+
+let text = cell.dataset.num ? cell.dataset.num : cell.innerText.trim();
+
+            let style = "padding:6px;";
+
+            if(row.parentElement.tagName==="THEAD"){
+                style += "background:#008080;color:white;font-weight:bold;text-align:center;";
+            }
+
+            if(cell.classList.contains("text-right"))
+                style += "text-align:right;mso-number-format:'#,##0.00';";
+
+            if(row.classList.contains("total-final"))
+                style += "background:#0f766e;color:white;font-weight:bold;";
+
+            excel += `<td style="${style}">${text}</td>`;
+        });
+
+        excel += "</tr>";
+    });
+
+    excel += "</table>";
+
+    descargarExcel(excel);
+}
+
+
+function descargarExcel(tablaHTML){
+
+    const template = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta charset="UTF-8">
+        <!--[if gte mso 9]>
+        <xml>
+            <x:ExcelWorkbook>
+                <x:ExcelWorksheets>
+                    <x:ExcelWorksheet>
+                        <x:Name>Reporte</x:Name>
+                        <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+                    </x:ExcelWorksheet>
+                </x:ExcelWorksheets>
+            </x:ExcelWorkbook>
+        </xml>
+        <![endif]-->
+    </head>
+    <body>
+        ${tablaHTML}
+    </body>
+    </html>`;
+
+    const blob = new Blob(['\ufeff', template], { type:"application/vnd.ms-excel;charset=utf-8;" });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "REPORTE_DETALLE_COTIZACION.xls";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+</script>
+
 
 </body>
 </html>
