@@ -1583,7 +1583,7 @@ def build_cotizacion_pdf_context(num_reg):
             "nombr", "cargr", "teler", "movir", "mailr",
             "nombc", "telec", "mov1c", "mov2c", "mov3c", "mailc",
             "nombt", "telet", "mov1t", "mov2t", "mov3t", "mailt",
-            "plazo", "tot_d", "por_c", "tot_s",
+            "plazo", "tot_d", "por_c", "tot_s", "tcamb",
             "fpago", "lugar",
             "tmone", "igv",
             "valid", "acu_s",
@@ -1629,22 +1629,18 @@ def build_cotizacion_pdf_context(num_reg):
         },
         "comercial": {
             "nombre": cotizacion.nombc,
-            "telefono": (
-                cotizacion.telec
-                or cotizacion.mov1c
-                or cotizacion.mov2c
-                or cotizacion.mov3c
-            ),
+            "telefono": cotizacion.telec,
+            "movil1": cotizacion.mov1c,
+            "movil2": cotizacion.mov2c,
+            "movil3": cotizacion.mov3c,
             "correo": cotizacion.mailc,
         },
         "tecnico": {
             "nombre": cotizacion.nombt,
-            "telefono": (
-                cotizacion.telet
-                or cotizacion.mov1t
-                or cotizacion.mov2t
-                or cotizacion.mov3t
-            ),
+            "telefono": cotizacion.telet,
+            "movil1": cotizacion.mov1t,
+            "movil2": cotizacion.mov2t,
+            "movil3": cotizacion.mov3t,
             "correo": cotizacion.mailt,
         },
         "tiempo_entrega": {
@@ -1663,7 +1659,7 @@ def build_cotizacion_pdf_context(num_reg):
         "incluye_igv": cotizacion.igv == "S",
         "validez": {
             "cantidad": cotizacion.valid,
-            "tipo": cotizacion.acu_s,
+            "tipo": "Días" if cotizacion.acu_s == "D" else "Semanas" if cotizacion.acu_s == "S" else "Meses",
         },
     }
 
