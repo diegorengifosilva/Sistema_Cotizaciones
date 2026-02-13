@@ -1646,11 +1646,11 @@ def build_cotizacion_pdf_context(num_reg):
         "tiempo_entrega": {
             "suministros": {
                 "cantidad": cotizacion.plazo,
-                "tipo": cotizacion.tot_d,
+                "tipo": "Días" if cotizacion.tot_d == "D" else "Semanas" if cotizacion.tot_d == "S" else "Meses",
             },
             "servicios": {
                 "cantidad": cotizacion.por_c,
-                "tipo": cotizacion.tot_s,
+                "tipo": "Días" if cotizacion.tot_s == "D" else "Semanas" if cotizacion.tot_s == "S" else "Meses",
             },
         },
         "forma_pago": cotizacion.fpago,

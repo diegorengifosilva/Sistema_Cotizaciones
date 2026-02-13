@@ -1,6 +1,7 @@
 // src/dashboard/cotizaciones/CondicionesModal.jsx
 
 import { useState, useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -8,10 +9,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Info, Save, X } from "lucide-react";
+
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { ShieldCheck, Info, Save, X } from "lucide-react";
 
 export default function CondicionesModal({
   open,
