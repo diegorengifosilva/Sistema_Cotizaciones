@@ -35,7 +35,7 @@ import AsignarCotiModal from "../Gestion/AsignarCotiModal";
 import { tableToExcel } from "../../utils/excel";
 import { calcularItemSegunProveedor, resolverEndpointPorCodigo } from "../Suministros/tables/tablaUtils";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { crearCotizacion } from "@/api/cotizaciones";
 import { toast } from "react-toastify";
 import { fromJSON } from "postcss";
@@ -214,6 +214,11 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
     },
   });
 
+  // ========
+  // NUMREG
+  // ========
+  const numReg = data?.num_reg || cotizacion?.num_reg;
+  
   //=========================//
   // DATOS DE LA COTIZACIÓN //
   //=========================//
@@ -1238,6 +1243,17 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
     },
   });
 
+  const condicionesQuery = useQuery({
+    queryKey: ["condiciones-generales", numReg],
+    queryFn: async () => {
+      const res = await api.get(
+        `cotizaciones/${numReg}/condiciones-generales/`
+      );
+      return res.data.condiciones;
+    },
+    enabled: openCondiciones, // 👈 solo cuando abre
+  });
+
   const generarCodigo = useMutation({
     mutationFn: () =>
       api.post(`/cotizaciones/generar_codigo/${numReg}/`),
@@ -1741,9 +1757,6 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
     if (popup) popup.focus();
   };
 
-  const numReg = data?.num_reg || cotizacion?.num_reg;
-
-
   // =====================
   // REPORTES
   // =====================
@@ -2218,19 +2231,14 @@ export default function AprobacionCotizacionModal({ open, onClose, cotizacion, m
             <CondicionesModal
               open={openCondiciones}
               onClose={() => setOpenCondiciones(false)}
-              condicionesIniciales={condicionesHtml ?? data?.acu_e}
+              condicionesIniciales={condicionesQuery.data}
               onAceptar={(nuevoTexto) => {
-
-                // 1️⃣ guardamos en estado local
                 setCondicionesHtml(nuevoTexto);
-
-                // 2️⃣ persistimos en backend
                 condicionesGenerales.mutate(nuevoTexto);
-
-                // 3️⃣ cerramos modal
                 setOpenCondiciones(false);
               }}
             />
+
             
             <GenerarCodigoModal
               open={openGenerarCodigo}

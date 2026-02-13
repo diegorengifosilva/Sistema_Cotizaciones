@@ -580,32 +580,81 @@
         </div>
 
         <div class="summary-grid" style="margin-top: 0;">
-            <div class="summary-item">
-                <div class="data-card">
-                    <span class="label">Contacto Comercial:</span>
-                    <div class="value">
-                        {{ cabecera.comercial.nombre }}<br>
-                        <span style="font-size: 11px; font-weight: 400;">Teléfono: {{ cabecera.comercial.telefono }}</span>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.movil1 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.movil2 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.movil3 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.comercial.correo }}</span><br>
-                    </div>
-                </div>
-            </div>
-            <div class="summary-item">
-                <div class="data-card">
-                    <span class="label">Contacto Técnico:</span>
-                    <div class="value">
-                        {{ cabecera.tecnico.nombre }}<br>
-                        <span style="font-size: 11px; font-weight: 400;">Teléfono: {{ cabecera.tecnico.telefono }}</span>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.movil1 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.movil2 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.movil3 }}</span><br>
-                        <span style="font-size: 11px; font-weight: 400;">{{ cabecera.tecnico.correo }}</span><br>
-                    </div>
-                </div>
-            </div>
+          <div class="summary-item">
+    <div class="data-card">
+        <span class="label">Contacto Comercial:</span>
+
+        {% if cabecera.comercial.nombre or cabecera.comercial.telefono or cabecera.comercial.movil1 or cabecera.comercial.movil2 or cabecera.comercial.movil3 or cabecera.comercial.correo %}
+        <div class="value">
+
+            {% if cabecera.comercial.nombre %}
+                <div class="line strong">{{ cabecera.comercial.nombre }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.telefono %}
+                <div class="line">Teléfono: {{ cabecera.comercial.telefono }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.movil1 %}
+                <div class="line">{{ cabecera.comercial.movil1 }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.movil2 %}
+                <div class="line">{{ cabecera.comercial.movil2 }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.movil3 %}
+                <div class="line">{{ cabecera.comercial.movil3 }}</div>
+            {% endif %}
+
+            {% if cabecera.comercial.correo %}
+                <div class="line">{{ cabecera.comercial.correo }}</div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+<div class="summary-item">
+    <div class="data-card">
+        <span class="label">Contacto Técnico:</span>
+
+        {% if cabecera.tecnico.nombre or cabecera.tecnico.telefono or cabecera.tecnico.movil1 or cabecera.tecnico.movil2 or cabecera.tecnico.movil3 or cabecera.tecnico.correo %}
+        <div class="value">
+
+            {% if cabecera.tecnico.nombre %}
+                <div class="line strong">{{ cabecera.tecnico.nombre }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.telefono %}
+                <div class="line">Teléfono: {{ cabecera.tecnico.telefono }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.movil1 %}
+                <div class="line">{{ cabecera.tecnico.movil1 }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.movil2 %}
+                <div class="line">{{ cabecera.tecnico.movil2 }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.movil3 %}
+                <div class="line">{{ cabecera.tecnico.movil3 }}</div>
+            {% endif %}
+
+            {% if cabecera.tecnico.correo %}
+                <div class="line">{{ cabecera.tecnico.correo }}</div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
         </div>
 
         <div style="margin-top: 10px;">
@@ -656,56 +705,70 @@
     <div class="header-container">
         <img src="{{ header_path }}" class="header-img">
     </div>
-    <div class="content-padding">
-        <div style="text-align: center; margin-bottom: 60px;">
-            <span class="tagline" style="font-size: 12px;">Contenido de la Propuesta</span>
-            <h2 style="font-size: 32px; font-weight: 800; color: var(--dark); margin: 10px 0;">TABLA DE CONTENIDOS</h2>
-            <div style="width: 50px; height: 4px; background: var(--primary); margin: 0 auto;"></div>
+  <div class="content-padding">
+    <div style="text-align: center; margin-bottom: 60px;">
+        <span class="tagline" style="font-size: 12px;">Contenido de la Propuesta</span>
+        <h2 style="font-size: 32px; font-weight: 800; color: var(--dark); margin: 10px 0;">TABLA DE CONTENIDOS</h2>
+        <div style="width: 50px; height: 4px; background: var(--primary); margin: 0 auto;"></div>
+    </div>
+
+    <div class="indice-contenedor">
+
+        <!-- 1 -->
+        <div class="indice-item">
+            <span class="indice-numero">{{ 1|stringformat:"02d" }}</span>
+            <span class="indice-titulo">Resumen de Propuesta y Condiciones</span>
+            <span class="indice-puntos"></span>
         </div>
 
-        <div class="indice-contenedor">
-            <div class="indice-item">
-                <span class="indice-numero">01</span>
-                <span class="indice-titulo">Resumen de Propuesta y Condiciones</span>
-                <span class="indice-puntos"></span>
-            </div>
-
-            <div class="indice-item">
-                <span class="indice-numero">02</span>
-                <span class="indice-titulo">Presupuesto General</span>
-                <span class="indice-puntos"></span>
-            </div>
-
-            {% if suministros %}
-                {% for grupo in suministros %}
-                <div class="indice-item">
-                    <span class="indice-numero">0{{ forloop.counter|add:2 }}</span>
-                    <span class="indice-titulo">Detalle: {{ grupo.titulo }}</span>
-                    <span class="indice-puntos"></span>
-                </div>
-                {% endfor %}
-            {% endif %}
-
-            {% if servicios %}
-                {% with start_index=suministros|length|add:2 %}
-                    {% for grupo in servicios %}
-                    <div class="indice-item">
-                        <span class="indice-numero">{% if forloop.counter|add:start_index < 10 %}0{% endif %}{{ forloop.counter|add:start_index }}</span>
-                        <span class="indice-titulo">Detalle: {{ grupo.titulo }}</span>
-                        <span class="indice-puntos"></span>
-                    </div>
-                    {% endfor %}
-                {% endwith %}
-            {% endif %}
-
-            <div class="indice-item">
-                {% with total_grupos=suministros|length|add:servicios|length|add:2 %}
-                <span class="indice-numero">{% if total_grupos|add:1 < 10 %}0{% endif %}{{ total_grupos|add:1 }}</span>
-                <span class="indice-titulo">Condiciones Generales y Garantías</span>
-                <span class="indice-puntos"></span>
-                {% endwith %}
-            </div>
+        <!-- 2 -->
+        <div class="indice-item">
+            <span class="indice-numero">{{ 2|stringformat:"02d" }}</span>
+            <span class="indice-titulo">Presupuesto General</span>
+            <span class="indice-puntos"></span>
         </div>
+
+
+        <!-- SUMINISTROS -->
+        {% for grupo in suministros %}
+        <div class="indice-item">
+            <span class="indice-numero">
+                {{ forloop.counter|add:2|stringformat:"02d" }}
+            </span>
+            <span class="indice-titulo">Detalle: {{ grupo.titulo }}</span>
+            <span class="indice-puntos"></span>
+        </div>
+        {% endfor %}
+
+
+        <!-- SERVICIOS -->
+        {% with offset=suministros|length|add:2 %}
+            {% for grupo in servicios %}
+            <div class="indice-item">
+                <span class="indice-numero">
+                    {{ forloop.counter|add:offset|stringformat:"02d" }}
+                </span>
+                <span class="indice-titulo">Detalle: {{ grupo.titulo }}</span>
+                <span class="indice-puntos"></span>
+            </div>
+            {% endfor %}
+        {% endwith %}
+
+
+        <!-- CONDICIONES -->
+        {% with total=suministros|length|add:servicios|length|add:2 %}
+        <div class="indice-item">
+            <span class="indice-numero">
+                {{ total|add:1|stringformat:"02d" }}
+            </span>
+            <span class="indice-titulo">Condiciones Generalessss y Garantías</span>
+            <span class="indice-puntos"></span>
+        </div>
+        {% endwith %}
+
+    </div>
+</div>
+
 
         <div style="position: absolute; left: 0; top: 20%; width: 4px; height: 60%; background: linear-gradient(to bottom, transparent, var(--primary), transparent); opacity: 0.3;"></div>
     </div>

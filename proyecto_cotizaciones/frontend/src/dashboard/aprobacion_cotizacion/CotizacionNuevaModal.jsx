@@ -189,6 +189,11 @@ export default function CotizacionNuevaModal({ open, onClose, cotizacion, modo, 
     },
   });
 
+  // ========
+  // NUMREG
+  // ========
+  const numReg = data?.num_reg || cotizacion?.num_reg;
+  
   // ==============================
   // CONTROL POR ESTADO ENVIO
   // ==============================
@@ -1199,8 +1204,6 @@ export default function CotizacionNuevaModal({ open, onClose, cotizacion, modo, 
     const popup = window.open(url, "detalle", specs);
     if (popup) popup.focus();
   };
-
-  const numReg = data?.num_reg
 
   // =============================
   // Función para cerrar todo
