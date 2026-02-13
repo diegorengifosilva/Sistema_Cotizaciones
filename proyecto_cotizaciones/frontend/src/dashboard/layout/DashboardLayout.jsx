@@ -146,7 +146,7 @@ export default function DashboardLayout() {
 
       {/* SIDEBAR LIGHT ENTERPRISE */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-50 bg-white flex flex-col transform transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]
+        className={`fixed md:sticky top-0 left-0 z-50 bg-white flex flex-col transform transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]!
           ${mobileOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"}
           ${sidebarOpen ? "md:w-80" : "md:w-28"} 
           md:translate-x-0 h-screen border-r border-slate-200 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.03)]`}

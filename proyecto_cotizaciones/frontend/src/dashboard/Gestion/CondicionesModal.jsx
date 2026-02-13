@@ -40,7 +40,7 @@ export default function CondicionesModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-white rounded-2xl shadow-2xl border-none p-0 overflow-hidden font-sans">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border-none p-0 overflow-hidden font-sans">
         
         {/* HEADER MODERNO */}
         <div className="bg-slate-50/80 px-6 py-4 border-b border-slate-100">
@@ -60,21 +60,15 @@ export default function CondicionesModal({
         </div>
 
         {/* CONTENIDO DEL EDITOR */}
-        <div className="p-4">
+        <div className="p-4 flex-1 overflow-y-auto">
           <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 shadow-inner">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden quill-modern-container">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm quill-modern-container">
+
               <ReactQuill
                 value={texto}
                 onChange={setTexto}
                 theme="snow"
-                modules={{
-                  toolbar: [
-                    ["bold", "italic", "underline"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    [{ indent: "-1" }, { indent: "+1" }],
-                    ["blockquote"],
-                  ],
-                }}
+
                 className="bg-white"
               />
             </div>
@@ -82,7 +76,7 @@ export default function CondicionesModal({
         </div>
 
         {/* FOOTER GESTIÓN */}
-        <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-100 flex justify-between items-center">
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] px-6 py-3 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 z-20">
           <div className="flex items-center gap-2 opacity-70">
             <Info size={14} className="text-slate-400" />
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">

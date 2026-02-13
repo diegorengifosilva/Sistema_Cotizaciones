@@ -69,7 +69,6 @@ export default function TablaOtros({
                 costoTotal: Number((costoPrecio * cantidad).toFixed(2)) ?? 0.00,
                 ventaTotal: Number((precioVenta * cantidad).toFixed(2)) ?? 0.00,
                 costoPrecio: resolverPrecioVenta(r) ?? 0, // 🔹 clave: mismo nombre que RITTAL
-                utilidad: 0,
               })
               }
               className="cursor-pointer hover:bg-blue-50 transition"

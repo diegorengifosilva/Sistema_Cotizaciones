@@ -1,3 +1,5 @@
+{% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -61,12 +63,56 @@
 
     .text-right { text-align: right; }
     .text-center { text-align: center; }
+
+    /* ---------- HEADER ---------- */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .header img.logo-img {
+        width: 140px;
+        height: auto;
+    }
+
+    .excel-btn {
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .excel-btn img {
+        width: 38px;
+        display: block;
+        margin: auto;
+    }
+
+    .excel-btn a {
+        text-decoration: none;
+        color: #1D6F42;
+        font-weight: bold;
+    }
+
 </style>
 </head>
 
 <body>
 
 <h2>REPORTE SUMINISTROS</h2>
+
+<div class="header">
+    <div>
+        <img class="logo-img" src="{% static 'logo.png' %}" alt="Logo Empresa">
+    </div>
+
+    <div class="excel-btn">
+        <a href="{{ url_excel }}">
+            <img src="{% static 'importar-xls.png' %}" alt="excel">
+            Exportar Excel
+        </a>
+    </div>
+</div>
 
 <!-- CONTENEDOR GENERAL PARA EXPORTAR A EXCEL -->
 <div id="tabla_suministros">

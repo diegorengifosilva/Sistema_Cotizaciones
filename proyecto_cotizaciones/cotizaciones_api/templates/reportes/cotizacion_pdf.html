@@ -1,3 +1,5 @@
+{% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -16,8 +18,15 @@
         }
 
         @page {
-            margin: 0;
             size: A4;
+            /* Dejamos un margen inferior de unos 3.5cm para que el pie de página respire */
+            margin: 0 0 35mm 0; 
+
+            @bottom-center {
+                content: element(footer);
+                width: 100%;
+                vertical-align: bottom; /* Empuja el contenido al puro fondo del área */
+            }
         }
 
         body {
@@ -392,16 +401,98 @@
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .font-bold { font-weight: 700; }
+
+        /* --- ENCABEZADO --- */
+        .header-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto; /* Dejar que la imagen dicte el alto */
+            z-index: 100;
+        }
+
+        .header-img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Ajuste para que el contenido no se pegue al encabezado */
+        .content, .content-padding {
+            padding-top: 140px !important; 
+        }
+
+        /* Quitamos el borde degradado viejo si existía */
+        .header-bar { display: none; }
+
+        /* --- ESTILOS PARA PIE DE PÁGINA --- */
+        /* Contenedor del Pie de Página */
+        #footer {
+            position: running(footer);
+            width: 100%;
+            height: 300px;
+        }
+
+        .footer-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Imagen de fondo (las líneas y el degradado) */
+        .footer-bg {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Contenedor de sellos y texto */
+        .footer-content {
+            position: absolute;
+            top: 30px; /* Ajustar según necesites subir o bajar los sellos */
+            left: 0;
+            width: 100%;
+            z-index: 2;
+            display: table; /* Usamos table para alineación perfecta en WeasyPrint */
+        }
+
+        .sellos-left {
+            display: table-cell;
+            vertical-align: middle;
+            padding-left: 20px;
+        }
+
+        .correo-right {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+            padding-right: 30px;
+        }
+
+        /* Tamaño de los sellos individuales */
+        .sello {
+            height: 45px;
+            margin-right: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .correo-img {
+            height: 18px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
 
+
+
 <div class="page cover">
     <div class="cover-accent"></div>
-    <div class="logo-container">
-        <img src="{{ logo_path }}" class="logo-main" alt="V&C Logo">
+    <div class="header-container">
+        <img src="{{ header_path }}" class="header-img">
     </div>
-
     <div class="cover-content">
         <div class="tagline">Propuesta Económica</div>
         <h1 class="main-title">{{ cabecera.referencia|upper }}</h1>
@@ -427,12 +518,27 @@
             <p style="margin:0; font-size: 11px; color: var(--text-gray);">Optimización y Automatización de Procesos</p>
         </div>
     </div>
+
+    <div class="footer-wrapper">
+        <img src="{{ footer_bg_path }}" class="footer-bg">
+
+        <div class="footer-content">
+            <div class="sellos-left">
+                <img src="{{ sgs_path }}" class="sello">
+                <img src="{{ homologada_path }}" class="sello">
+                <img src="{{ mega_path }}" class="sello">
+            </div>
+
+            <div class="correo-right">
+                <img src="{{ correo_path }}" class="correo-img">
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="page">
     <div class="header-bg"></div>
     <div class="footer-bg"></div>
-
     <div class="content">
         <div style="text-align: right;">
             <div class="quote-badge">
@@ -539,7 +645,9 @@
 
 <div class="page">
     <div class="header-bar"></div>
-    
+    <div class="header-container">
+        <img src="{{ header_path }}" class="header-img">
+    </div>
     <div class="content-padding">
         <div style="text-align: center; margin-bottom: 60px;">
             <span class="tagline" style="font-size: 12px;">Contenido de la Propuesta</span>
@@ -599,7 +707,9 @@
 
 <div class="page">
     <div class="header-bar"></div>
-    
+    <div class="header-container">
+        <img src="{{ header_path }}" class="header-img">
+    </div>
     <div class="content-padding">
         <p class="subtit">1.- PRESUPUESTO GENERAL</p>
         <table class="tabla-moderna">

@@ -1802,29 +1802,37 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 
 def cotizacion_pdf(request, num_reg):
-
     context = build_cotizacion_pdf_context(num_reg)
 
     if not context:
         return HttpResponse("Cotización no existe", status=404)
 
-    # 📌 Ruta real al logo local
-    logo_path = Path(settings.BASE_DIR) / "frontend/src/assets/logo.png"
-    context["logo_path"] = logo_path.as_uri()
+    # 📌 Definimos la carpeta base de assets para evitar repetir código
+    assets_dir = Path(settings.BASE_DIR) / "frontend" / "src" / "assets"
 
-    html_string = render_to_string(
-        "reportes/cotizacion_pdf.html",
-        context
-    )
+    # 📌 Rutas de Imágenes Principales
+    context["logo_path"] = (assets_dir / "logo.png").as_uri()
+    context["header_path"] = (assets_dir / "encabezado-reporte.png").as_uri()
 
+    # 📌 Rutas del Nuevo Pie de Página (Basado en tus archivos)
+    context["footer_bg_path"] = (assets_dir / "pie pagina-reporte.png").as_uri()
+    context["sgs_path"] = (assets_dir / "sgs.png").as_uri()
+    context["homologada_path"] = (assets_dir / "empresa homologada.png").as_uri()
+    context["mega_path"] = (assets_dir / "mega.png").as_uri()
+    context["correo_path"] = (assets_dir / "correo cormercial.png").as_uri()
+
+    html_string = render_to_string("reportes/cotizacion_pdf.html", context)
+
+    # Generación del PDF
     html = HTML(
-        string=html_string,
+        string=html_string, 
         base_url=settings.BASE_DIR.as_uri()
     )
 
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = f'inline; filename="cotizacion_{num_reg}.pdf"'
 
+    # Nota: Usamos optimización de imágenes para evitar que el PDF pese demasiado
     html.write_pdf(response)
     return response
 

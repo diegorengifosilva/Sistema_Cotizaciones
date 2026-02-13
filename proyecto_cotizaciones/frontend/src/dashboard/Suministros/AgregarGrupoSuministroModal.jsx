@@ -78,7 +78,7 @@ function AgregarGrupoSuministroModal({ open, onClose, onConfirm, grupo = null })
   };
 
   const handleSubmit = () => {
-    if (!form.tipo || !form.nombre.trim()) return;
+    if (!form.tipo) return;
 
     onConfirm({
       ...form,
